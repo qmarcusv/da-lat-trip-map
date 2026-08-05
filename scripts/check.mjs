@@ -12,6 +12,18 @@ for (const directory of directories) {
   }
 }
 
+for (const name of readdirSync(new URL("apps-script/", root))) {
+  if (extname(name) !== ".gs") continue;
+  const source = readFileSync(new URL(`apps-script/${name}`, root), "utf8");
+  try {
+    new Function(source);
+  } catch (error) {
+    throw new Error(`Apps Script syntax error in ${name}: ${error.message}`);
+  }
+}
+
+JSON.parse(readFileSync(new URL("apps-script/appsscript.json", root), "utf8"));
+
 for (const file of javaScriptFiles) {
   const result = spawnSync(process.execPath, ["--check", file], { cwd: root, encoding: "utf8" });
   if (result.status !== 0) {

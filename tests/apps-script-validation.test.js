@@ -1,0 +1,45 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+
+const context = vm.createContext({ console, isFinite });
+for (const filename of ["Config.gs", "Validation.gs"]) {
+  const source = readFileSync(new URL(`../apps-script/${filename}`, import.meta.url), "utf8");
+  vm.runInContext(source, context, { filename });
+}
+
+test("Apps Script validation normalizes duplicate categories", () => {
+  const result = context.validateLocation_({
+    name: "Quán A",
+    categories: ["food", "photo", "food"],
+    primaryCategory: "food",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://www.google.com/maps/place/example",
+    latitude: 11.94,
+    longitude: 108.45,
+    estimatedCost: 50000,
+  }, false);
+
+  assert.deepEqual(Array.from(result.categories), ["food", "photo"]);
+});
+
+test("Apps Script validation rejects a mismatched primary category", () => {
+  assert.throws(() => context.validateLocation_({
+    name: "Quán A",
+    categories: ["food"],
+    primaryCategory: "photo",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://maps.app.goo.gl/example",
+    latitude: 11.94,
+    longitude: 108.45,
+  }, false), /Nhóm chính/);
+});
+
+test("Apps Script validation rejects multiple periods in one plan item", () => {
+  assert.throws(() => context.validatePlanItem_({
+    locationId: "loc-1",
+    day: "1",
+    period: ["morning", "afternoon"],
+  }, false), /Buổi/);
+});

@@ -25,7 +25,7 @@ Xây dựng website cho nhóm bốn người cùng thu thập, bình chọn và 
 
 Password `123` chỉ phù hợp cho bản thử nghiệm, không bảo vệ được dữ liệu nếu đường dẫn website bị chia sẻ ra ngoài nhóm. Khi triển khai xong nên đổi thành mật khẩu khác nhau cho từng người.
 
-Không ghi username/password trực tiếp vào mã nguồn trên GitHub. Apps Script sẽ giữ salt và password hash trong Script Properties. Password chỉ được gửi qua HTTPS khi đăng nhập và không được ghi vào log hoặc Google Sheet.
+Mật khẩu mặc định `123` đã được ghi trong tài liệu công khai nên không được xem là bí mật. Mã nguồn không hard-code mật khẩu để xác thực; Apps Script nhận mật khẩu khởi tạo từ Script Properties rồi chỉ giữ salt và password hash. Password chỉ được gửi qua HTTPS khi đăng nhập và không được ghi vào log hoặc Google Sheet.
 
 ### Quyền của admin `trucnhi`
 
@@ -299,17 +299,19 @@ da-lat/
 ├── css/
 │   └── styles.css
 ├── js/
-│   ├── config.example.js     # Chỉ chứa placeholder
 │   ├── config.js             # URL /exec, có thể public; không chứa password
 │   ├── app.js
-│   ├── auth.js
 │   ├── api.js
+│   ├── constants.js
+│   ├── demo-api.js
+│   ├── domain.js
 │   ├── map.js
-│   └── locations.js
 ├── apps-script/
 │   ├── Code.gs
 │   ├── Auth.gs
-│   ├── Sheets.gs
+│   ├── Config.gs
+│   ├── Repository.gs
+│   ├── Services.gs
 │   ├── Validation.gs
 │   └── appsscript.json
 └── docs/
@@ -320,17 +322,9 @@ da-lat/
 
 1. Đăng nhập tài khoản Google sẽ sở hữu hệ thống.
 2. Mở Google Sheets và tạo spreadsheet mới tên `Da Lat Trip Database`.
-3. Tạo đúng tám Sheet ở mục 6.
-4. Dán tên cột vào dòng 1 của từng Sheet.
-5. Chọn `View > Freeze > 1 row` để cố định dòng tiêu đề.
-6. Không chia sẻ quyền Editor của spreadsheet cho người dùng cuối; họ thao tác qua website.
-7. Sao chép Spreadsheet ID từ URL:
-
-```text
-https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit
-```
-
-8. Tạo một bản sao lưu trước khi chạy thử dữ liệu thật.
+3. Không cần tạo tab hoặc cột thủ công; hàm `setupProject()` sẽ tạo và kiểm tra đúng tám Sheet ở mục 6.
+4. Không chia sẻ quyền Editor của spreadsheet cho người dùng cuối; họ thao tác qua website.
+5. Tạo một bản sao lưu trước khi chạy thử dữ liệu thật.
 
 Không cần tự nhập tài khoản vào Sheet. Danh sách username, role, salt và password hash sẽ nằm trong Apps Script Properties; lịch cá nhân nằm ở bốn Sheet `Plan_*`.
 
@@ -340,11 +334,12 @@ Không cần tự nhập tài khoản vào Sheet. Danh sách username, role, sal
 
 1. Trong spreadsheet chọn `Extensions > Apps Script`.
 2. Đặt tên project, ví dụ `Da Lat Trip API`.
-3. Sau khi có code, tạo các file `.gs` đúng như mục 8 và dán nội dung tương ứng.
-4. Trong `Project Settings > Script Properties`, lưu cấu hình server như Spreadsheet ID, password hash/salt và bí mật dùng tạo token.
-5. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
+3. Tạo các file `.gs` đúng như mục 8 và dán nội dung từ thư mục `apps-script/`.
+4. Trong `Project Settings > Script Properties`, tạo property tạm `INITIAL_PASSWORD` với giá trị `123`.
+5. Chạy thủ công `setupProject()`. Hàm này tự lưu Spreadsheet ID, tạo tám Sheet, tạo salt/hash cho bốn tài khoản và xóa `INITIAL_PASSWORD`.
+6. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
 
-Khi viết code, sẽ có một hàm thiết lập chạy thủ công đúng một lần để tạo hash cho bốn password ban đầu `123`. Sau khi chạy, kiểm tra Script Properties và xóa/khóa hàm thiết lập để tránh người khác chạy lại.
+Hướng dẫn thao tác chi tiết nằm tại [`docs/setup.md`](docs/setup.md).
 
 ### 10.2 Kiểm thử trong Apps Script
 
@@ -395,7 +390,7 @@ Trước khi commit, tìm password/token bị ghi nhầm:
 git diff --cached | Select-String -Pattern 'password|secret|token|123'
 ```
 
-Kết quả phải không chứa password thật, password hash, token hoặc bí mật Apps Script.
+Kết quả có thể khớp phần tài liệu nói về password mặc định `123`, nhưng không được chứa `USERS_JSON`, password hash, token phiên hoặc bí mật Apps Script.
 
 ### 11.3 Bật GitHub Pages
 
