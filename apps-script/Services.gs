@@ -108,8 +108,13 @@ function upsertSharedPlanItem_(session, payload) {
   requireExistingLocation_(value.locationId);
   return withScriptLock_(function () {
     var saved;
-    if (value.planItemId) {
-      saved = updateObjectById_("SharedPlan", "planItemId", value.planItemId, Object.assign({}, value, {
+    var existing = value.planItemId ? null : getRows_("SharedPlan").filter(function (item) {
+      return item.locationId === value.locationId;
+    })[0];
+    var targetId = value.planItemId || (existing && existing.planItemId);
+    if (targetId) {
+      saved = updateObjectById_("SharedPlan", "planItemId", targetId, Object.assign({}, value, {
+        planItemId: targetId,
         updatedBy: session.username, updatedAt: nowIso_(),
       }));
     } else {
@@ -165,14 +170,14 @@ function parseLocation_(location) {
 
 function parsePlanItem_(item) {
   var result = Object.assign({}, item);
-  result.day = String(result.day || "unassigned");
+  result.day = normalizeTripDay_(result.day);
   result.vote = result.vote === true || String(result.vote).toLowerCase() === "true";
   return result;
 }
 
 function parseSharedPlanItem_(item) {
   var result = Object.assign({}, item);
-  result.day = String(result.day || "unassigned");
+  result.day = normalizeTripDay_(result.day);
   result.order = Number(result.order || 0);
   return result;
 }

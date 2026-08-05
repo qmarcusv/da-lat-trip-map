@@ -19,15 +19,15 @@ Xây dựng website cho nhóm bốn người cùng thu thập, bình chọn và 
 | Username | Role | Password ban đầu |
 |---|---|---|
 | `trucnhi` | `admin` | `123` |
-| `thao` | `user` | `123` |
-| `tuyen` | `user` | `123` |
-| `ngocnhi` | `user` | `123` |
+| `thao` | `admin` | `123` |
+| `tuyen` | `admin` | `123` |
+| `ngocnhi` | `admin` | `123` |
 
 Password `123` chỉ phù hợp cho bản thử nghiệm, không bảo vệ được dữ liệu nếu đường dẫn website bị chia sẻ ra ngoài nhóm. Khi triển khai xong nên đổi thành mật khẩu khác nhau cho từng người.
 
 Mật khẩu mặc định `123` đã được ghi trong tài liệu công khai nên không được xem là bí mật. Mã nguồn không hard-code mật khẩu để xác thực; Apps Script nhận mật khẩu khởi tạo từ Script Properties rồi chỉ giữ salt và password hash. Password chỉ được gửi qua HTTPS khi đăng nhập và không được ghi vào log hoặc Google Sheet.
 
-### Quyền của admin `trucnhi`
+### Quyền của bốn admin
 
 - Xem tất cả địa điểm, bình chọn và lịch cá nhân.
 - Thêm và sửa địa điểm chung.
@@ -35,13 +35,7 @@ Mật khẩu mặc định `123` đã được ghi trong tài liệu công khai 
 - Chốt và sửa lịch trình chung.
 - Xem lịch sử thay đổi.
 
-### Quyền của user
-
-- Xem danh mục địa điểm chung và lịch chung.
-- Thêm địa điểm mới và sửa thông tin địa điểm chung.
-- Không được xóa địa điểm chung.
-- Chỉ thêm/sửa/xóa lựa chọn trong Sheet cá nhân của chính mình.
-- Bình chọn địa điểm bằng tài khoản của mình; mỗi người chỉ có tối đa một phiếu cho một địa điểm.
+Mỗi tài khoản vẫn chỉ thêm/sửa/xóa lựa chọn và bình chọn trong Sheet cá nhân của chính mình. Quyền admin chỉ mở thêm thao tác với địa điểm chung, lịch chung, khôi phục và nhật ký.
 
 ### Phiên đăng nhập cơ bản
 
@@ -58,7 +52,7 @@ Mật khẩu mặc định `123` đã được ghi trong tài liệu công khai 
 
 ### Loại địa điểm
 
-Một địa điểm có thể thuộc nhiều loại khác nhau:
+Mỗi địa điểm chọn đúng một nhóm:
 
 - `food`: Ăn uống
 - `cafe`: Cafe
@@ -66,15 +60,14 @@ Một địa điểm có thể thuộc nhiều loại khác nhau:
 - `sightseeing`: Danh lam thắng cảnh
 - `homestay`: Homestay
 
-Danh sách loại phải duy nhất. Ví dụ `food + photo` hợp lệ, nhưng `food + food` không hợp lệ.
-
-Mỗi địa điểm có thêm một `primaryCategory` nằm trong danh sách `categories`. Nhóm chính quyết định màu marker; tất cả nhóm còn lại vẫn xuất hiện trong popup và bộ lọc.
+Để tương thích với dữ liệu Sheet đã tạo, backend vẫn lưu nhóm trong `categories` và `primaryCategory`, nhưng cả hai cùng biểu diễn một nhóm duy nhất. Nhóm này quyết định màu marker và bộ lọc.
 
 Quy ước màu mặc định:
 
 | Nhóm chính | Màu marker | Mã màu |
 |---|---|---|
 | Ăn uống | Cam | `#F97316` |
+| Cafe | Nâu | `#A16207` |
 | Chụp ảnh | Tím | `#9333EA` |
 | Danh lam thắng cảnh | Xanh lá | `#16A34A` |
 | Homestay | Xanh dương | `#2563EB` |
@@ -83,21 +76,21 @@ Giao diện phải có chú giải màu. Marker cũng nên có icon hoặc ký h
 
 ### Ngày và buổi
 
-Ngày và buổi thuộc về một mục trong lịch cá nhân hoặc lịch chung, không gắn cố định vào địa điểm. Vì vậy cùng một địa điểm có thể được `thao` chọn vào sáng Ngày 1 và `tuyen` chọn vào chiều Ngày 2.
+Ngày và buổi thuộc về một mục trong lịch cá nhân hoặc lịch chung. Form địa điểm đồng thời cập nhật lịch chung để nhóm xếp điểm ngay khi thêm hoặc sửa.
 
 Mỗi mục lịch chỉ có:
 
-- Một ngày: `unassigned`, `1`, `2` hoặc `3`.
-- Một buổi: `unassigned`, `morning`, `afternoon` hoặc `evening`.
+- Một ngày: `unassigned`, `27`, `28` hoặc `29`.
+- Một buổi: `unassigned`, `morning`, `noon`, `afternoon` hoặc `evening`.
 
-Ví dụ hợp lệ: `Ngày 1 + Buổi sáng`. Ví dụ không hợp lệ: vừa `Buổi sáng` vừa `Buổi chiều` trong cùng một mục lịch.
+Ví dụ hợp lệ: `Ngày 27 + Buổi sáng`. Ví dụ không hợp lệ: vừa `Buổi sáng` vừa `Buổi chiều` trong cùng một mục lịch.
 
 ### Thông tin địa điểm
 
 Mỗi địa điểm gồm:
 
 - Tên địa điểm.
-- Một hoặc nhiều loại địa điểm, không trùng nhau.
+- Một nhóm địa điểm.
 - Địa chỉ cơ bản.
 - Link Google Maps.
 - Vĩ độ và kinh độ để đặt marker lên bản đồ.
@@ -111,7 +104,7 @@ Mỗi địa điểm gồm:
 ### Bản đồ và danh sách
 
 - Hiển thị bản đồ trung tâm Đà Lạt và marker của các địa điểm đang hoạt động.
-- Các địa điểm cùng nhóm chính dùng cùng màu; các nhóm khác nhau dùng màu khác nhau theo bảng màu ở mục 3.
+- Các địa điểm cùng nhóm dùng cùng màu; các nhóm khác nhau dùng màu khác nhau theo bảng màu ở mục 3.
 - Popup khi nhấn marker phải hiển thị tối thiểu: tên, giá/chi phí dự kiến, giờ mở cửa và tất cả nhóm của địa điểm.
 - Popup cũng hiển thị địa chỉ, link Google Maps, ghi chú, tổng số phiếu và nút chọn điểm để đo khoảng cách/chỉ đường nếu tính năng định tuyến khả dụng.
 - Có danh sách địa điểm responsive cho điện thoại và máy tính.
@@ -176,8 +169,8 @@ Tạo một spreadsheet, ví dụ `Da Lat Trip Database`, gồm tám Sheet sau. 
 |---|---|---|
 | A | `id` | UUID, không đổi sau khi tạo |
 | B | `name` | Tên địa điểm, bắt buộc |
-| C | `categories` | Chuỗi JSON duy nhất, ví dụ `["food","photo"]` |
-| D | `primaryCategory` | Một giá trị thuộc `categories`, dùng chọn màu marker |
+| C | `categories` | Chuỗi JSON có đúng một nhóm, ví dụ `["food"]` |
+| D | `primaryCategory` | Cùng giá trị với phần tử duy nhất trong `categories`, dùng chọn màu marker |
 | E | `address` | Địa chỉ cơ bản, bắt buộc |
 | F | `googleMapsUrl` | URL bắt đầu bằng `https://www.google.com/maps/` hoặc URL Maps hợp lệ |
 | G | `latitude` | Số từ -90 đến 90 |
@@ -197,8 +190,8 @@ Tạo một spreadsheet, ví dụ `Da Lat Trip Database`, gồm tám Sheet sau. 
 |---|---|---|
 | A | `planItemId` | UUID |
 | B | `locationId` | Tham chiếu `Locations.id` |
-| C | `day` | `1`, `2` hoặc `3` |
-| D | `period` | `morning`, `afternoon` hoặc `evening` |
+| C | `day` | `27`, `28` hoặc `29` |
+| D | `period` | `morning`, `noon`, `afternoon` hoặc `evening` |
 | E | `plannedTime` | Giờ dự kiến dạng `HH:mm`, có thể để trống |
 | F | `order` | Thứ tự thủ công trong cùng ngày/buổi |
 | G | `note` | Ghi chú chung |
@@ -220,8 +213,8 @@ Cả bốn Sheet dùng cùng cấu trúc:
 |---|---|---|
 | A | `selectionId` | UUID |
 | B | `locationId` | Tham chiếu `Locations.id`, duy nhất trong Sheet này |
-| C | `day` | `unassigned`, `1`, `2` hoặc `3` |
-| D | `period` | `unassigned`, `morning`, `afternoon` hoặc `evening` |
+| C | `day` | `unassigned`, `27`, `28` hoặc `29` |
+| D | `period` | `unassigned`, `morning`, `noon`, `afternoon` hoặc `evening` |
 | E | `plannedTime` | `HH:mm`, có thể để trống |
 | F | `vote` | `TRUE` hoặc `FALSE` |
 | G | `note` | Ghi chú cá nhân |
@@ -287,7 +280,7 @@ Chỉ lưu hash của token. Apps Script dọn phiên hết hạn khi login/logo
 - Username lấy từ token đã xác thực, không tin trường `username` frontend gửi lên.
 - Sheet cá nhân được chọn bằng allowlist cố định; tuyệt đối không nối trực tiếp tên Sheet từ input.
 - Apps Script validate enum, độ dài, URL, tọa độ, chi phí, ngày, buổi và quyền sở hữu.
-- `primaryCategory` bắt buộc thuộc `categories`; `categories` phải loại bỏ giá trị trùng trước khi ghi.
+- `categories` phải có đúng một phần tử và `primaryCategory` phải bằng phần tử đó.
 - Dùng `LockService.getScriptLock()` trước thao tác ghi để tránh ghi đè khi nhiều người lưu cùng lúc.
 - Mọi nội dung trả về chỉ được frontend gán bằng `textContent`, không render HTML tùy ý.
 
@@ -427,7 +420,7 @@ Mỗi lần push thay đổi vào nguồn đã chọn, GitHub Pages sẽ triển
 ## 13. Kiểm thử bắt buộc
 
 - Sai username/password không đăng nhập được.
-- User không gọi được action admin dù tự sửa request trong DevTools.
+- Cả bốn tài khoản nhận quyền admin từ cấu hình server.
 - User chỉ ghi được `Plan_<username>` của chính mình.
 - Mỗi user chỉ có một phiếu cho mỗi địa điểm.
 - Một địa điểm có thể có nhiều category nhưng category không trùng.
@@ -472,12 +465,12 @@ Mỗi lần push thay đổi vào nguồn đã chọn, GitHub Pages sẽ triển
 ## 15. Tiêu chí hoàn thành
 
 - Bốn tài khoản đăng nhập đúng role; tài khoản khác bị từ chối.
-- Admin và user bị giới hạn đúng quyền.
+- Cả bốn tài khoản có quyền admin; lịch cá nhân vẫn tách theo username.
 - Danh mục chung, lịch chung và bốn lịch cá nhân đọc/ghi đúng Sheet.
 - Bình chọn được tổng hợp chính xác, không trùng phiếu.
 - Bản đồ hiển thị đúng dữ liệu địa chỉ, Google Maps, loại, chi phí và giờ mở cửa.
-- Marker có màu theo nhóm chính; popup hiển thị tên, giá, giờ mở cửa và toàn bộ nhóm.
-- Bộ lọc hỗ trợ loại, ngày, sáng/chiều/tối và người dùng.
+- Marker có màu theo nhóm; popup hiển thị tên, giá, giờ mở cửa và nhóm.
+- Bộ lọc và lịch hỗ trợ ngày 27/28/29 cùng sáng/trưa/chiều/tối.
 - Không có password, hash hoặc token trong repository.
 - Website chạy ổn trên GitHub Pages và kết nối được Apps Script `/exec`.
 - Có backup và có thể khôi phục địa điểm bị xóa mềm.
@@ -489,7 +482,7 @@ Mỗi lần push thay đổi vào nguồn đã chọn, GitHub Pages sẽ triển
 3. Tên, địa chỉ và link Google Maps của homestay.
 4. Danh sách địa điểm ban đầu nếu đã có.
 5. Chi phí sẽ lưu theo một số VND hay theo khoảng giá/mô tả.
-6. Giờ dự kiến có cần chính xác `HH:mm` hay chỉ cần Sáng/Chiều/Tối.
+6. Giờ dự kiến có cần chính xác `HH:mm` hay chỉ cần Sáng/Trưa/Chiều/Tối.
 
 Sau khi có các thông tin này, có thể chuyển sang bước viết Google Apps Script và frontend trong chính thư mục `da-lat`.
 

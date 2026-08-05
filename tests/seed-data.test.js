@@ -31,7 +31,7 @@ test("seed records have valid categories and Google Maps search links", () => {
   for (const location of locations) {
     assert.ok(location.name);
     assert.ok(location.address);
-    assert.ok(location.categories.length > 0);
+    assert.equal(location.categories.length, 1);
     assert.ok(location.categories.every((category) => allowed.has(category)));
     assert.ok(location.categories.includes(location.primaryCategory));
     assert.match(location.googleMapsUrl, /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);

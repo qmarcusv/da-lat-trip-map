@@ -75,7 +75,8 @@ function authenticate_(token) {
     return session.tokenHash === tokenHash && new Date(session.expiresAt).getTime() > now;
   })[0];
   if (!row) throw new AppError("SESSION_EXPIRED", "Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.");
-  return { username: row.username, role: row.role, tokenHash: tokenHash };
+  var configuredUser = APP.users.filter(function (user) { return user.username === row.username; })[0];
+  return { username: row.username, role: configuredUser ? configuredUser.role : row.role, tokenHash: tokenHash };
 }
 
 function requireAdmin_(session) {
@@ -85,7 +86,11 @@ function requireAdmin_(session) {
 function getUsers_() {
   var raw = PropertiesService.getScriptProperties().getProperty(APP.usersProperty);
   if (!raw) throw new AppError("NOT_CONFIGURED", "Chưa khởi tạo tài khoản. Hãy chạy setupProject().");
-  return JSON.parse(raw);
+  var storedUsers = JSON.parse(raw);
+  return APP.users.map(function (configuredUser) {
+    var storedUser = storedUsers.filter(function (user) { return user.username === configuredUser.username; })[0] || {};
+    return Object.assign({}, storedUser, configuredUser);
+  });
 }
 
 function assertLoginAllowed_(username) {

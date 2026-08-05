@@ -7,9 +7,9 @@ var APP = Object.freeze({
   loginWindowSeconds: 900,
   users: Object.freeze([
     { username: "trucnhi", displayName: "Trúc Nhi", role: "admin" },
-    { username: "thao", displayName: "Thảo", role: "user" },
-    { username: "tuyen", displayName: "Tuyền", role: "user" },
-    { username: "ngocnhi", displayName: "Ngọc Nhi", role: "user" },
+    { username: "thao", displayName: "Thảo", role: "admin" },
+    { username: "tuyen", displayName: "Tuyền", role: "admin" },
+    { username: "ngocnhi", displayName: "Ngọc Nhi", role: "admin" },
   ]),
   personalSheets: Object.freeze({
     trucnhi: "Plan_trucnhi",
@@ -27,8 +27,14 @@ var APP = Object.freeze({
 });
 
 var CATEGORY_VALUES = Object.freeze(["food", "cafe", "photo", "sightseeing", "homestay"]);
-var DAY_VALUES = Object.freeze(["unassigned", "1", "2", "3"]);
-var PERIOD_VALUES = Object.freeze(["unassigned", "morning", "afternoon", "evening"]);
+var DAY_VALUES = Object.freeze(["unassigned", "27", "28", "29"]);
+var PERIOD_VALUES = Object.freeze(["unassigned", "morning", "noon", "afternoon", "evening"]);
+
+function normalizeTripDay_(value) {
+  var legacyDays = { "1": "27", "2": "28", "3": "29" };
+  var day = String(value || "unassigned");
+  return legacyDays[day] || day;
+}
 
 function AppError(code, message) {
   this.name = "AppError";

@@ -1,26 +1,26 @@
 const DEMO_LOCATIONS = [
   {
-    id: "demo-1", name: "Quảng trường Lâm Viên", categories: ["photo", "sightseeing"], primaryCategory: "photo",
+    id: "demo-1", name: "Quảng trường Lâm Viên", categories: ["photo"], primaryCategory: "photo",
     address: "Đường Trần Quốc Toản, Phường 1, Đà Lạt", googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Quang+truong+Lam+Vien",
     latitude: 11.9406, longitude: 108.4467, estimatedCost: 0, openingHours: "Cả ngày", note: "Biểu tượng nụ hoa Atiso.", status: "active",
   },
   {
-    id: "demo-2", name: "Hồ Xuân Hương", categories: ["sightseeing", "photo"], primaryCategory: "sightseeing",
+    id: "demo-2", name: "Hồ Xuân Hương", categories: ["sightseeing"], primaryCategory: "sightseeing",
     address: "Trung tâm thành phố Đà Lạt", googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Ho+Xuan+Huong+Da+Lat",
     latitude: 11.9447, longitude: 108.4483, estimatedCost: 0, openingHours: "Cả ngày", note: "Đi bộ và ngắm cảnh quanh hồ.", status: "active",
   },
   {
-    id: "demo-3", name: "Tiệm cà phê Túi Mơ To", categories: ["food", "photo"], primaryCategory: "food",
+    id: "demo-3", name: "Tiệm cà phê Túi Mơ To", categories: ["food"], primaryCategory: "food",
     address: "Hẻm 31 Sào Nam, Phường 11, Đà Lạt", googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Tui+Mo+To+Da+Lat",
     latitude: 11.9585, longitude: 108.4683, estimatedCost: 70000, openingHours: "07:00-21:30", note: "Có góc nhìn nhà lồng và nhiều hoa.", status: "active",
   },
   {
-    id: "demo-4", name: "Dinh Bảo Đại III", categories: ["sightseeing", "photo"], primaryCategory: "sightseeing",
+    id: "demo-4", name: "Dinh Bảo Đại III", categories: ["sightseeing"], primaryCategory: "sightseeing",
     address: "01 Triệu Việt Vương, Phường 4, Đà Lạt", googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Dinh+Bao+Dai+III",
     latitude: 11.9291, longitude: 108.4286, estimatedCost: 50000, openingHours: "07:00-17:30", note: "Kiến trúc và khuôn viên lịch sử.", status: "active",
   },
   {
-    id: "demo-5", name: "Chợ đêm Đà Lạt", categories: ["food", "sightseeing"], primaryCategory: "food",
+    id: "demo-5", name: "Chợ đêm Đà Lạt", categories: ["food"], primaryCategory: "food",
     address: "Nguyễn Thị Minh Khai, Phường 1, Đà Lạt", googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Cho+dem+Da+Lat",
     latitude: 11.9421, longitude: 108.4379, estimatedCost: 150000, openingHours: "17:00-23:30", note: "Phù hợp lịch buổi tối.", status: "active",
   },

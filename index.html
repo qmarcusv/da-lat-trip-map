@@ -151,15 +151,9 @@
         <input id="location-id" type="hidden">
         <div class="form-grid">
           <label class="field field--wide"><span>Tên địa điểm *</span><input id="location-name" required maxlength="120"></label>
-          <fieldset class="field field--wide category-fieldset">
-            <legend>Nhóm *</legend>
-            <label><input type="checkbox" name="categories" value="food"> <span>🍜 Ăn uống</span></label>
-            <label><input type="checkbox" name="categories" value="cafe"> <span>☕ Cafe</span></label>
-            <label><input type="checkbox" name="categories" value="photo"> <span>📷 Chụp ảnh</span></label>
-            <label><input type="checkbox" name="categories" value="sightseeing"> <span>🌲 Thắng cảnh</span></label>
-            <label><input type="checkbox" name="categories" value="homestay"> <span>🏠 Homestay</span></label>
-          </fieldset>
-          <label class="field"><span>Nhóm chính *</span><select id="location-primary-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="cafe">Cafe</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
+          <label class="field"><span>Nhóm *</span><select id="location-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="cafe">Cafe</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
+          <label class="field"><span>Ngày *</span><select id="location-day" required><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
+          <label class="field"><span>Buổi *</span><select id="location-period" required><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
           <label class="field"><span>Chi phí dự kiến (VND)</span><input id="location-cost" type="number" min="0" step="1000" placeholder="70000"></label>
           <label class="field field--wide"><span>Địa chỉ *</span><input id="location-address" required maxlength="250"></label>
           <label class="field field--wide"><span>Link Google Maps *</span><input id="location-maps-url" type="url" required placeholder="https://maps.app.goo.gl/..."></label>
@@ -182,8 +176,8 @@
         <input id="plan-location-id" type="hidden">
         <input id="plan-selection-id" type="hidden">
         <div class="form-grid">
-          <label class="field"><span>Ngày</span><select id="plan-day"><option value="unassigned">Chưa xếp ngày</option><option value="1">Ngày 1</option><option value="2">Ngày 2</option><option value="3">Ngày 3</option></select></label>
-          <label class="field"><span>Buổi</span><select id="plan-period"><option value="unassigned">Chưa xếp buổi</option><option value="morning">Buổi sáng</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
+          <label class="field"><span>Ngày</span><select id="plan-day"><option value="unassigned">Chưa xếp ngày</option><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
+          <label class="field"><span>Buổi</span><select id="plan-period"><option value="unassigned">Chưa xếp buổi</option><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
           <label class="field"><span>Giờ dự kiến</span><input id="plan-time" type="time"></label>
           <label class="switch-field"><input id="plan-vote" type="checkbox"><span>Bình chọn địa điểm này</span></label>
           <label class="field field--wide"><span>Ghi chú cá nhân</span><textarea id="plan-note" rows="3" maxlength="500"></textarea></label>
@@ -202,8 +196,8 @@
         <input id="shared-plan-location-id" type="hidden">
         <input id="shared-plan-item-id" type="hidden">
         <div class="form-grid">
-          <label class="field"><span>Ngày *</span><select id="shared-plan-day" required><option value="1">Ngày 1</option><option value="2">Ngày 2</option><option value="3">Ngày 3</option></select></label>
-          <label class="field"><span>Buổi *</span><select id="shared-plan-period" required><option value="morning">Buổi sáng</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
+          <label class="field"><span>Ngày *</span><select id="shared-plan-day" required><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
+          <label class="field"><span>Buổi *</span><select id="shared-plan-period" required><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
           <label class="field"><span>Giờ dự kiến</span><input id="shared-plan-time" type="time"></label>
           <label class="field"><span>Thứ tự trong buổi</span><input id="shared-plan-order" type="number" min="0" step="1" value="0"></label>
           <label class="field field--wide"><span>Ghi chú chung</span><textarea id="shared-plan-note" rows="3" maxlength="500"></textarea></label>

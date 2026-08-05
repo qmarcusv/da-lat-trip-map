@@ -16,11 +16,12 @@ test("normalizeCategories removes duplicates and unsupported values", () => {
   );
 });
 
-test("validateLocation accepts multiple unique categories and a matching primary category", () => {
+test("validateLocation maps one group into the legacy location fields and keeps its schedule", () => {
   const result = validateLocation({
     name: "Quán A",
-    categories: ["food", "photo", "food"],
-    primaryCategory: "food",
+    category: "food",
+    day: "27",
+    period: "noon",
     address: "Đà Lạt",
     googleMapsUrl: "https://www.google.com/maps/place/test",
     latitude: 11.9404,
@@ -31,14 +32,18 @@ test("validateLocation accepts multiple unique categories and a matching primary
   });
 
   assert.equal(result.isValid, true);
-  assert.deepEqual(result.value.categories, ["food", "photo"]);
+  assert.deepEqual(result.value.categories, ["food"]);
+  assert.equal(result.value.primaryCategory, "food");
+  assert.equal(result.value.day, "27");
+  assert.equal(result.value.period, "noon");
 });
 
 test("validateLocation allows both coordinates to be blank for automatic geocoding", () => {
   const result = validateLocation({
     name: "Quán A",
-    categories: ["food"],
-    primaryCategory: "food",
+    category: "food",
+    day: "28",
+    period: "morning",
     address: "Đà Lạt",
     googleMapsUrl: "https://maps.app.goo.gl/VSVaexJc3HLynKvA9",
     latitude: "",
@@ -54,8 +59,9 @@ test("validateLocation allows both coordinates to be blank for automatic geocodi
 test("validateLocation rejects non-Maps paths on Google short-link hosts", () => {
   const result = validateLocation({
     name: "Quán A",
-    categories: ["food"],
-    primaryCategory: "food",
+    category: "food",
+    day: "29",
+    period: "evening",
     address: "Đà Lạt",
     googleMapsUrl: "https://goo.gl/not-a-maps-link",
     latitude: "",
@@ -66,11 +72,12 @@ test("validateLocation rejects non-Maps paths on Google short-link hosts", () =>
   assert.match(result.errors.googleMapsUrl, /Google Maps/);
 });
 
-test("validateLocation rejects a primary category outside categories", () => {
+test("validateLocation rejects an unsupported group", () => {
   const result = validateLocation({
     name: "Quán A",
-    categories: ["food"],
-    primaryCategory: "photo",
+    category: "unknown",
+    day: "27",
+    period: "morning",
     address: "Đà Lạt",
     googleMapsUrl: "https://maps.app.goo.gl/example",
     latitude: 11.94,
@@ -81,7 +88,7 @@ test("validateLocation rejects a primary category outside categories", () => {
   });
 
   assert.equal(result.isValid, false);
-  assert.match(result.errors.primaryCategory, /nhóm chính/i);
+  assert.match(result.errors.category, /nhóm/i);
 });
 
 test("filterLocations combines text and category filters", () => {

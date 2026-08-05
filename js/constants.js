@@ -8,14 +8,15 @@ export const CATEGORY_META = Object.freeze({
 
 export const DAY_LABELS = Object.freeze({
   unassigned: "Chưa xếp ngày",
-  1: "Ngày 1",
-  2: "Ngày 2",
-  3: "Ngày 3",
+  27: "Ngày 27",
+  28: "Ngày 28",
+  29: "Ngày 29",
 });
 
 export const PERIOD_LABELS = Object.freeze({
   unassigned: "Chưa xếp buổi",
   morning: "Buổi sáng",
+  noon: "Buổi trưa",
   afternoon: "Buổi chiều",
   evening: "Buổi tối",
 });

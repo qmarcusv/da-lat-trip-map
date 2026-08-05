@@ -180,12 +180,15 @@ function createLocationCard(location) {
 }
 
 function openLocationDialog(location = null) {
+  const scheduledItem = location ? state.sharedPlan.find((item) => item.locationId === location.id) : null;
   elements.locationForm.reset();
   elements.locationFormMessage.textContent = "";
   elements.locationDialogTitle.textContent = location ? "Sửa địa điểm" : "Thêm địa điểm";
   elements.locationId.value = location?.id || "";
   elements.locationName.value = location?.name || "";
-  elements.locationPrimaryCategory.value = location?.primaryCategory || "";
+  elements.locationCategory.value = location?.primaryCategory || location?.categories?.[0] || "";
+  elements.locationDay.value = scheduledItem?.day || "27";
+  elements.locationPeriod.value = scheduledItem?.period || "morning";
   elements.locationAddress.value = location?.address || "";
   elements.locationMapsUrl.value = location?.googleMapsUrl || "";
   elements.locationLatitude.value = location?.latitude ?? "";
@@ -193,18 +196,19 @@ function openLocationDialog(location = null) {
   elements.locationCost.value = location?.estimatedCost ?? "";
   elements.locationOpeningHours.value = location?.openingHours || "";
   elements.locationNote.value = location?.note || "";
-  for (const checkbox of elements.categoryCheckboxes) checkbox.checked = Boolean(location?.categories?.includes(checkbox.value));
   elements.locationDialog.showModal();
   elements.locationName.focus();
 }
 
 async function saveLocation(event) {
   event.preventDefault();
+  let locationWasSaved = false;
   const result = validateLocation({
     id: elements.locationId.value,
     name: elements.locationName.value,
-    categories: [...elements.categoryCheckboxes].filter((input) => input.checked).map((input) => input.value),
-    primaryCategory: elements.locationPrimaryCategory.value,
+    category: elements.locationCategory.value,
+    day: elements.locationDay.value,
+    period: elements.locationPeriod.value,
     address: elements.locationAddress.value,
     googleMapsUrl: elements.locationMapsUrl.value,
     latitude: elements.locationLatitude.value,
@@ -221,6 +225,18 @@ async function saveLocation(event) {
   try {
     const action = result.value.id ? "updateLocation" : "createLocation";
     const savedLocation = await state.api.request(action, result.value);
+    elements.locationId.value = savedLocation.id;
+    locationWasSaved = true;
+    const existingSchedule = state.sharedPlan.find((item) => item.locationId === savedLocation.id);
+    await state.api.request("upsertSharedPlanItem", {
+      locationId: savedLocation.id,
+      planItemId: existingSchedule?.planItemId || "",
+      day: result.value.day,
+      period: result.value.period,
+      plannedTime: existingSchedule?.plannedTime || "",
+      order: existingSchedule?.order || 0,
+      note: existingSchedule?.note || "",
+    });
     elements.locationDialog.close();
     const coordinatesFound = savedLocation?.latitude !== null && savedLocation?.latitude !== ""
       && savedLocation?.longitude !== null && savedLocation?.longitude !== "";
@@ -228,7 +244,9 @@ async function saveLocation(event) {
     toast(coordinatesFound ? `${successMessage} Đã xác định tọa độ.` : `${successMessage} Chưa tự tìm được tọa độ.`);
     await loadData();
   } catch (error) {
-    elements.locationFormMessage.textContent = error.message;
+    elements.locationFormMessage.textContent = locationWasSaved
+      ? `Địa điểm đã lưu nhưng lịch chung chưa cập nhật: ${error.message}`
+      : error.message;
   } finally {
     setBusy(elements.locationForm, false);
   }
@@ -306,7 +324,7 @@ function openSharedPlanDialog(location, item = null) {
   elements.sharedPlanLocationName.textContent = location.name;
   elements.sharedPlanLocationId.value = location.id;
   elements.sharedPlanItemId.value = item?.planItemId || "";
-  elements.sharedPlanDay.value = item?.day || "1";
+  elements.sharedPlanDay.value = item?.day || "27";
   elements.sharedPlanPeriod.value = item?.period || "morning";
   elements.sharedPlanTime.value = item?.plannedTime || "";
   elements.sharedPlanOrder.value = item?.order ?? 0;
@@ -369,7 +387,11 @@ function renderPlanList(container, items, isPersonal) {
     container.append(createElement("div", "empty-state", isPersonal ? "Bạn chưa chọn địa điểm nào." : "Admin chưa chốt lịch chung."));
     return;
   }
-  const sorted = [...items].sort((a, b) => `${a.day}${a.period}${a.plannedTime}`.localeCompare(`${b.day}${b.period}${b.plannedTime}`));
+  const dayOrder = { unassigned: 0, 27: 1, 28: 2, 29: 3 };
+  const periodOrder = { unassigned: 0, morning: 1, noon: 2, afternoon: 3, evening: 4 };
+  const sorted = [...items].sort((a, b) => (dayOrder[a.day] || 0) - (dayOrder[b.day] || 0)
+    || (periodOrder[a.period] || 0) - (periodOrder[b.period] || 0)
+    || String(a.plannedTime || "").localeCompare(String(b.plannedTime || "")));
   for (const item of sorted) {
     const location = state.locations.find((entry) => entry.id === item.locationId);
     if (!location) continue;
@@ -463,8 +485,8 @@ function collectElements() {
     routeDescription: byId("route-description"), routeRoadButton: byId("route-road-button"), routeClearButton: byId("route-clear-button"),
     myPlanList: byId("my-plan-list"), sharedPlanList: byId("shared-plan-list"), myPlanCount: byId("my-plan-count"),
     locationDialog: byId("location-dialog"), locationForm: byId("location-form"), locationDialogTitle: byId("location-dialog-title"),
-    locationId: byId("location-id"), locationName: byId("location-name"), categoryCheckboxes: document.querySelectorAll('input[name="categories"]'),
-    locationPrimaryCategory: byId("location-primary-category"), locationAddress: byId("location-address"), locationMapsUrl: byId("location-maps-url"),
+    locationId: byId("location-id"), locationName: byId("location-name"), locationCategory: byId("location-category"),
+    locationDay: byId("location-day"), locationPeriod: byId("location-period"), locationAddress: byId("location-address"), locationMapsUrl: byId("location-maps-url"),
     locationLatitude: byId("location-latitude"), locationLongitude: byId("location-longitude"), locationCost: byId("location-cost"),
     locationOpeningHours: byId("location-opening-hours"), locationNote: byId("location-note"), locationFormMessage: byId("location-form-message"),
     planDialog: byId("plan-dialog"), planForm: byId("plan-form"), planLocationName: byId("plan-location-name"),

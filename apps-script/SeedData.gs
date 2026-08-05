@@ -124,7 +124,7 @@ function getExistingLocationSeed_() {
       name: row[0],
       address: row[1],
       primaryCategory: row[2],
-      categories: row[3],
+      categories: [row[2]],
       votes: row[4],
       note: row[5] || "",
       googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(row[0] + " " + row[1]),

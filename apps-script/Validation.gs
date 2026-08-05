@@ -25,7 +25,7 @@ function validateLocation_(input, requireId) {
   };
   if (requireId && !value.id) throw new AppError("VALIDATION_ERROR", "Thiếu ID địa điểm.");
   if (!value.name) throw new AppError("VALIDATION_ERROR", "Tên địa điểm là bắt buộc.");
-  if (!categories.length) throw new AppError("VALIDATION_ERROR", "Chọn ít nhất một nhóm.");
+  if (categories.length !== 1) throw new AppError("VALIDATION_ERROR", "Mỗi địa điểm phải có đúng một nhóm.");
   if (categories.indexOf(value.primaryCategory) < 0) throw new AppError("VALIDATION_ERROR", "Nhóm chính phải thuộc danh sách nhóm.");
   if (!value.address) throw new AppError("VALIDATION_ERROR", "Địa chỉ là bắt buộc.");
   if (!isGoogleMapsUrl_(value.googleMapsUrl)) throw new AppError("VALIDATION_ERROR", "Link Google Maps không hợp lệ.");
@@ -44,7 +44,7 @@ function validatePlanItem_(input, shared) {
   input = input || {};
   var value = {
     locationId: cleanString_(input.locationId, 80),
-    day: cleanString_(input.day || "unassigned", 12),
+    day: normalizeTripDay_(cleanString_(input.day || "unassigned", 12)),
     period: cleanString_(input.period || "unassigned", 20),
     plannedTime: cleanString_(input.plannedTime, 5),
     note: cleanString_(input.note, 500),

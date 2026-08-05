@@ -157,9 +157,10 @@ https://qmarcusv.github.io/da-lat-trip-map/
 
 - [ ] Mở URL `/exec` thấy JSON `status: ok`.
 - [ ] `js/config.js` chứa đúng URL `/exec`, không phải `/dev`.
-- [ ] `trucnhi / 123` đăng nhập được.
-- [ ] `thao / 123` đăng nhập được nhưng không thấy nút xóa địa điểm.
+- [ ] Cả bốn tài khoản đăng nhập được và hiển thị vai trò `Quản trị viên`.
+- [ ] `thao`, `tuyen`, `ngocnhi` có thể sửa/xóa địa điểm và cập nhật lịch chung.
 - [ ] Thêm một địa điểm trên website tạo một dòng trong `Locations`.
+- [ ] Form địa điểm chỉ có một trường Nhóm và lưu lịch chung theo ngày 27/28/29, sáng/trưa/chiều/tối.
 - [ ] Bình chọn bằng `thao` tạo/cập nhật dòng trong `Plan_thao`.
 - [ ] Đăng nhập `tuyen` không sửa được dòng trong `Plan_thao`.
 - [ ] Xóa địa điểm bằng admin chuyển `status` thành `deleted` thay vì xóa dòng.

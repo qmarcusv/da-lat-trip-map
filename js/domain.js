@@ -21,11 +21,14 @@ export function normalizeCategories(categories) {
 export function validateLocation(input) {
   const latitude = optionalNumber(input.latitude);
   const longitude = optionalNumber(input.longitude);
+  const category = String(input.category || "").trim();
   const value = {
     id: String(input.id || "").trim(),
     name: String(input.name || "").trim(),
-    categories: normalizeCategories(input.categories),
-    primaryCategory: String(input.primaryCategory || "").trim(),
+    categories: normalizeCategories([category]),
+    primaryCategory: category,
+    day: normalizeTripDay(input.day || "27"),
+    period: String(input.period || "morning"),
     address: String(input.address || "").trim(),
     googleMapsUrl: String(input.googleMapsUrl || "").trim(),
     latitude,
@@ -39,10 +42,9 @@ export function validateLocation(input) {
   const errors = {};
 
   if (!value.name || value.name.length > 120) errors.name = "Tên phải có từ 1 đến 120 ký tự.";
-  if (value.categories.length === 0) errors.categories = "Chọn ít nhất một nhóm.";
-  if (!value.categories.includes(value.primaryCategory)) {
-    errors.primaryCategory = "Nhóm chính phải nằm trong các nhóm đã chọn.";
-  }
+  if (value.categories.length !== 1) errors.category = "Chọn một nhóm hợp lệ.";
+  if (!ALLOWED_DAYS.includes(value.day) || value.day === "unassigned") errors.day = "Ngày phải là 27, 28 hoặc 29.";
+  if (!ALLOWED_PERIODS.includes(value.period) || value.period === "unassigned") errors.period = "Chọn một buổi hợp lệ.";
   if (!value.address || value.address.length > 250) errors.address = "Địa chỉ phải có từ 1 đến 250 ký tự.";
   if (!isGoogleMapsUrl(value.googleMapsUrl)) errors.googleMapsUrl = "Link Google Maps không hợp lệ.";
   if (value.latitude !== null && (!Number.isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90)) {
@@ -71,7 +73,7 @@ export function validatePlanItem(input) {
   const value = {
     selectionId: String(input.selectionId || "").trim(),
     locationId: String(input.locationId || "").trim(),
-    day: String(input.day || "unassigned"),
+    day: normalizeTripDay(input.day || "unassigned"),
     period: String(input.period || "unassigned"),
     plannedTime: String(input.plannedTime || "").trim(),
     vote: Boolean(input.vote),
@@ -88,6 +90,10 @@ export function validatePlanItem(input) {
   if (value.note.length > 500) errors.note = "Ghi chú cá nhân tối đa 500 ký tự.";
 
   return { isValid: Object.keys(errors).length === 0, errors, value };
+}
+
+function normalizeTripDay(value) {
+  return ({ 1: "27", 2: "28", 3: "29" })[String(value)] || String(value);
 }
 
 export function filterLocations(locations, filters = {}) {

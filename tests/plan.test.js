@@ -6,7 +6,7 @@ import { validatePlanItem } from "../js/domain.js";
 test("validatePlanItem accepts one day, one period and a valid time", () => {
   const result = validatePlanItem({
     locationId: "loc-1",
-    day: "1",
+    day: "27",
     period: "morning",
     plannedTime: "08:30",
     vote: true,
@@ -16,10 +16,22 @@ test("validatePlanItem accepts one day, one period and a valid time", () => {
   assert.equal(result.isValid, true);
 });
 
+test("validatePlanItem accepts the noon period", () => {
+  const result = validatePlanItem({
+    locationId: "loc-1",
+    day: "28",
+    period: "noon",
+    plannedTime: "12:00",
+    vote: false,
+  });
+
+  assert.equal(result.isValid, true);
+});
+
 test("validatePlanItem rejects unsupported period values", () => {
   const result = validatePlanItem({
     locationId: "loc-1",
-    day: "1",
+    day: "27",
     period: ["morning", "afternoon"],
     plannedTime: "08:30",
     vote: false,
@@ -33,7 +45,7 @@ test("validatePlanItem rejects unsupported period values", () => {
 test("validatePlanItem rejects invalid time", () => {
   const result = validatePlanItem({
     locationId: "loc-1",
-    day: "2",
+    day: "28",
     period: "evening",
     plannedTime: "25:15",
     vote: false,
