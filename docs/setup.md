@@ -60,7 +60,7 @@ Sau khi `setupProject()` đã tạo đủ tám tab:
 
 1. Tạo file `SeedData.gs` trong Apps Script và dán nội dung từ `apps-script/SeedData.gs`.
 2. Chọn hàm `seedExistingData` trên thanh công cụ rồi bấm `Run` đúng một lần.
-3. Kết quả lần đầu phải báo `locationsCreated: 32` và `votesCreated: 62` nếu database đang trống.
+3. Mở **Execution log**; kết quả lần đầu phải báo `locationsCreated: 32` và `votesCreated: 62` nếu database đang trống.
 4. Kiểm tra tab `Locations` có 32 dòng dữ liệu; bốn tab `Plan_*` lần lượt có số lựa chọn: `thao` 17, `trucnhi` 9, `ngocnhi` 19, `tuyen` 17.
 
 Hàm có chống trùng theo tên nên có thể chạy lại nếu lần chạy trước bị gián đoạn. Các ô FALSE không tạo dòng lịch cá nhân; tổng bình chọn được website tự tính. Địa điểm thiếu giá, giờ mở cửa hoặc tọa độ được giữ trống để cập nhật sau. Chúng vẫn hiện trong danh sách nhưng chỉ xuất hiện trên bản đồ và dùng được nút **Đo đường** sau khi có tọa độ hợp lệ.

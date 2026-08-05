@@ -4,7 +4,7 @@ import test from "node:test";
 import vm from "node:vm";
 
 const source = readFileSync(new URL("../apps-script/SeedData.gs", import.meta.url), "utf8");
-const context = vm.createContext({ encodeURIComponent });
+const context = vm.createContext({ encodeURIComponent, console: { log() {} } });
 vm.runInContext(source, context);
 
 const locations = context.getExistingLocationSeed_();

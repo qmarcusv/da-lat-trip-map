@@ -78,6 +78,7 @@ function seedExistingData() {
     });
 
     audit_("system-import", "seed", "locations", "initial-list", JSON.stringify(result));
+    console.log("seedExistingData: " + JSON.stringify(result));
     return result;
   });
 }
