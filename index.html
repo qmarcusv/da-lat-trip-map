@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bản đồ cùng lập kế hoạch du lịch Đà Lạt 3 ngày 2 đêm.">
+    <meta name="theme-color" content="#123c34">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://router.project-osrm.org; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <title>Đà Lạt đi đâu?</title>
+    <link rel="preconnect" href="https://tile.openstreetmap.org">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <div class="login-screen" id="login-screen">
+      <section class="login-panel" aria-labelledby="login-title">
+        <div class="brand-mark" aria-hidden="true">DL</div>
+        <p class="eyebrow">Nhóm mình · 3 ngày 2 đêm</p>
+        <h1 id="login-title">Đà Lạt đi đâu?</h1>
+        <p class="login-copy">Cùng chọn quán ngon, góc ảnh đẹp và những nơi thật đáng ghé.</p>
+        <form id="login-form" class="stack" novalidate>
+          <label class="field">
+            <span>Tên đăng nhập</span>
+            <input id="login-username" name="username" autocomplete="username" required placeholder="trucnhi">
+          </label>
+          <label class="field">
+            <span>Mật khẩu</span>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+          </label>
+          <p class="form-message" id="login-message" role="alert"></p>
+          <button class="button button--primary button--large" type="submit">Đăng nhập</button>
+        </form>
+        <div class="demo-entry" id="demo-entry" hidden>
+          <span>Chưa kết nối Google Apps Script.</span>
+          <button class="text-button" id="demo-button" type="button">Xem dữ liệu mẫu</button>
+        </div>
+      </section>
+      <aside class="login-landscape" aria-hidden="true">
+        <div class="landscape-copy">
+          <span>11.9404° N · 108.4583° E</span>
+          <strong>Thành phố trong sương</strong>
+        </div>
+      </aside>
+    </div>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Về đầu trang">
+          <span class="brand-mark brand-mark--small" aria-hidden="true">DL</span>
+          <span><strong>Đà Lạt đi đâu?</strong><small>3 ngày 2 đêm</small></span>
+        </a>
+        <nav class="view-tabs" aria-label="Chế độ xem">
+          <button class="view-tab is-active" type="button" data-view="places">Địa điểm</button>
+          <button class="view-tab" type="button" data-view="schedule">Lịch trình</button>
+        </nav>
+        <div class="user-menu">
+          <span class="connection-pill" id="connection-pill">Đang kết nối</span>
+          <span class="user-avatar" id="user-avatar" aria-hidden="true">TN</span>
+          <span class="user-copy"><strong id="user-name">Trúc Nhi</strong><small id="user-role">Quản trị viên</small></span>
+          <button class="icon-button" id="logout-button" type="button" aria-label="Đăng xuất" title="Đăng xuất">↗</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="sidebar" id="places-panel">
+          <div class="sidebar__header">
+            <div>
+              <p class="eyebrow">Khám phá</p>
+              <h2>Danh sách địa điểm</h2>
+            </div>
+            <button class="button button--primary" id="add-location-button" type="button">+ Thêm điểm</button>
+          </div>
+
+          <div class="filters">
+            <label class="search-field">
+              <span class="sr-only">Tìm địa điểm</span>
+              <span aria-hidden="true">⌕</span>
+              <input id="search-input" type="search" placeholder="Tìm tên hoặc địa chỉ…">
+            </label>
+            <label class="select-field">
+              <span class="sr-only">Lọc theo nhóm</span>
+              <select id="category-filter">
+                <option value="all">Tất cả nhóm</option>
+                <option value="food">Ăn uống</option>
+                <option value="photo">Chụp ảnh</option>
+                <option value="sightseeing">Danh lam thắng cảnh</option>
+                <option value="homestay">Homestay</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="legend" aria-label="Chú giải màu địa điểm">
+            <span><i class="legend__dot legend__dot--food"></i>Ăn uống</span>
+            <span><i class="legend__dot legend__dot--photo"></i>Chụp ảnh</span>
+            <span><i class="legend__dot legend__dot--sightseeing"></i>Thắng cảnh</span>
+            <span><i class="legend__dot legend__dot--homestay"></i>Homestay</span>
+          </div>
+
+          <div class="result-summary">
+            <span id="result-count">0 địa điểm</span>
+            <button class="text-button" id="refresh-button" type="button">Làm mới</button>
+          </div>
+          <div class="location-list" id="location-list" aria-live="polite"></div>
+        </aside>
+
+        <section class="map-stage" aria-label="Bản đồ địa điểm Đà Lạt">
+          <div id="map"></div>
+          <div class="route-card" id="route-card">
+            <div>
+              <p class="eyebrow">Đo khoảng cách</p>
+              <p id="route-description">Chọn 2 marker để đo khoảng cách.</p>
+            </div>
+            <div class="route-card__actions">
+              <button class="button button--primary" id="route-road-button" type="button" disabled>Tính đường đi</button>
+              <button class="icon-button" id="route-clear-button" type="button" aria-label="Xóa lựa chọn" title="Xóa lựa chọn">×</button>
+            </div>
+          </div>
+          <div class="map-status" id="map-status" role="status"></div>
+        </section>
+
+        <aside class="schedule-panel" id="schedule-panel" hidden>
+          <div class="schedule-panel__header">
+            <div>
+              <p class="eyebrow">Kế hoạch</p>
+              <h2>Lịch trình của nhóm</h2>
+            </div>
+            <button class="button button--secondary" id="back-to-map-button" type="button">← Bản đồ</button>
+          </div>
+          <div class="schedule-columns">
+            <section>
+              <div class="section-heading"><h3>Lịch chung</h3><span>Admin chốt</span></div>
+              <div id="shared-plan-list" class="plan-list"></div>
+            </section>
+            <section>
+              <div class="section-heading"><h3>Lựa chọn của tôi</h3><span id="my-plan-count">0 điểm</span></div>
+              <div id="my-plan-list" class="plan-list"></div>
+            </section>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <dialog id="location-dialog" class="dialog">
+      <form id="location-form" class="dialog__body" method="dialog" novalidate>
+        <header class="dialog__header">
+          <div><p class="eyebrow">Danh mục chung</p><h2 id="location-dialog-title">Thêm địa điểm</h2></div>
+          <button class="icon-button" value="cancel" aria-label="Đóng" formnovalidate>×</button>
+        </header>
+        <input id="location-id" type="hidden">
+        <div class="form-grid">
+          <label class="field field--wide"><span>Tên địa điểm *</span><input id="location-name" required maxlength="120"></label>
+          <fieldset class="field field--wide category-fieldset">
+            <legend>Nhóm *</legend>
+            <label><input type="checkbox" name="categories" value="food"> <span>🍜 Ăn uống</span></label>
+            <label><input type="checkbox" name="categories" value="photo"> <span>📷 Chụp ảnh</span></label>
+            <label><input type="checkbox" name="categories" value="sightseeing"> <span>🌲 Thắng cảnh</span></label>
+            <label><input type="checkbox" name="categories" value="homestay"> <span>🏠 Homestay</span></label>
+          </fieldset>
+          <label class="field"><span>Nhóm chính *</span><select id="location-primary-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
+          <label class="field"><span>Chi phí dự kiến (VND)</span><input id="location-cost" type="number" min="0" step="1000" placeholder="70000"></label>
+          <label class="field field--wide"><span>Địa chỉ *</span><input id="location-address" required maxlength="250"></label>
+          <label class="field field--wide"><span>Link Google Maps *</span><input id="location-maps-url" type="url" required placeholder="https://maps.app.goo.gl/..."></label>
+          <label class="field"><span>Vĩ độ *</span><input id="location-latitude" type="number" step="any" required placeholder="11.9404"></label>
+          <label class="field"><span>Kinh độ *</span><input id="location-longitude" type="number" step="any" required placeholder="108.4583"></label>
+          <label class="field"><span>Giờ mở cửa</span><input id="location-opening-hours" maxlength="100" placeholder="07:00-22:00"></label>
+          <label class="field field--wide"><span>Ghi chú</span><textarea id="location-note" rows="3" maxlength="1000"></textarea></label>
+        </div>
+        <p class="form-message" id="location-form-message" role="alert"></p>
+        <footer class="dialog__footer"><button class="button button--ghost" value="cancel" formnovalidate>Hủy</button><button class="button button--primary" id="location-save-button" type="submit">Lưu địa điểm</button></footer>
+      </form>
+    </dialog>
+
+    <dialog id="plan-dialog" class="dialog dialog--compact">
+      <form id="plan-form" class="dialog__body" method="dialog" novalidate>
+        <header class="dialog__header">
+          <div><p class="eyebrow">Lịch của tôi</p><h2 id="plan-location-name">Địa điểm</h2></div>
+          <button class="icon-button" value="cancel" aria-label="Đóng" formnovalidate>×</button>
+        </header>
+        <input id="plan-location-id" type="hidden">
+        <input id="plan-selection-id" type="hidden">
+        <div class="form-grid">
+          <label class="field"><span>Ngày</span><select id="plan-day"><option value="unassigned">Chưa xếp ngày</option><option value="1">Ngày 1</option><option value="2">Ngày 2</option><option value="3">Ngày 3</option></select></label>
+          <label class="field"><span>Buổi</span><select id="plan-period"><option value="unassigned">Chưa xếp buổi</option><option value="morning">Buổi sáng</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
+          <label class="field"><span>Giờ dự kiến</span><input id="plan-time" type="time"></label>
+          <label class="switch-field"><input id="plan-vote" type="checkbox"><span>Bình chọn địa điểm này</span></label>
+          <label class="field field--wide"><span>Ghi chú cá nhân</span><textarea id="plan-note" rows="3" maxlength="500"></textarea></label>
+        </div>
+        <p class="form-message" id="plan-form-message" role="alert"></p>
+        <footer class="dialog__footer"><button class="button button--danger" id="plan-delete-button" type="button">Bỏ khỏi lịch</button><span class="dialog__spacer"></span><button class="button button--ghost" value="cancel" formnovalidate>Hủy</button><button class="button button--primary" type="submit">Lưu lựa chọn</button></footer>
+      </form>
+    </dialog>
+
+    <dialog id="shared-plan-dialog" class="dialog dialog--compact">
+      <form id="shared-plan-form" class="dialog__body" method="dialog" novalidate>
+        <header class="dialog__header">
+          <div><p class="eyebrow">Lịch chung · Admin</p><h2 id="shared-plan-location-name">Địa điểm</h2></div>
+          <button class="icon-button" value="cancel" aria-label="Đóng" formnovalidate>×</button>
+        </header>
+        <input id="shared-plan-location-id" type="hidden">
+        <input id="shared-plan-item-id" type="hidden">
+        <div class="form-grid">
+          <label class="field"><span>Ngày *</span><select id="shared-plan-day" required><option value="1">Ngày 1</option><option value="2">Ngày 2</option><option value="3">Ngày 3</option></select></label>
+          <label class="field"><span>Buổi *</span><select id="shared-plan-period" required><option value="morning">Buổi sáng</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
+          <label class="field"><span>Giờ dự kiến</span><input id="shared-plan-time" type="time"></label>
+          <label class="field"><span>Thứ tự trong buổi</span><input id="shared-plan-order" type="number" min="0" step="1" value="0"></label>
+          <label class="field field--wide"><span>Ghi chú chung</span><textarea id="shared-plan-note" rows="3" maxlength="500"></textarea></label>
+        </div>
+        <p class="form-message" id="shared-plan-form-message" role="alert"></p>
+        <footer class="dialog__footer"><button class="button button--danger" id="shared-plan-delete-button" type="button">Xóa khỏi lịch chung</button><span class="dialog__spacer"></span><button class="button button--ghost" value="cancel" formnovalidate>Hủy</button><button class="button button--primary" type="submit">Lưu lịch chung</button></footer>
+      </form>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
