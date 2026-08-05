@@ -220,9 +220,12 @@ async function saveLocation(event) {
   setBusy(elements.locationForm, true);
   try {
     const action = result.value.id ? "updateLocation" : "createLocation";
-    await state.api.request(action, result.value);
+    const savedLocation = await state.api.request(action, result.value);
     elements.locationDialog.close();
-    toast(result.value.id ? "Đã cập nhật địa điểm." : "Đã thêm địa điểm.");
+    const coordinatesFound = savedLocation?.latitude !== null && savedLocation?.latitude !== ""
+      && savedLocation?.longitude !== null && savedLocation?.longitude !== "";
+    const successMessage = result.value.id ? "Đã cập nhật địa điểm." : "Đã thêm địa điểm.";
+    toast(coordinatesFound ? `${successMessage} Đã xác định tọa độ.` : `${successMessage} Chưa tự tìm được tọa độ.`);
     await loadData();
   } catch (error) {
     elements.locationFormMessage.textContent = error.message;

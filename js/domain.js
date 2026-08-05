@@ -8,8 +8,9 @@ const GOOGLE_MAPS_HOSTS = new Set([
   "google.com",
   "www.google.com",
   "maps.google.com",
-  "maps.app.goo.gl",
-  "goo.gl",
+  "google.com.vn",
+  "www.google.com.vn",
+  "maps.google.com.vn",
 ]);
 
 export function normalizeCategories(categories) {
@@ -18,6 +19,8 @@ export function normalizeCategories(categories) {
 }
 
 export function validateLocation(input) {
+  const latitude = optionalNumber(input.latitude);
+  const longitude = optionalNumber(input.longitude);
   const value = {
     id: String(input.id || "").trim(),
     name: String(input.name || "").trim(),
@@ -25,8 +28,8 @@ export function validateLocation(input) {
     primaryCategory: String(input.primaryCategory || "").trim(),
     address: String(input.address || "").trim(),
     googleMapsUrl: String(input.googleMapsUrl || "").trim(),
-    latitude: Number(input.latitude),
-    longitude: Number(input.longitude),
+    latitude,
+    longitude,
     estimatedCost: input.estimatedCost === "" || input.estimatedCost == null
       ? ""
       : Number(input.estimatedCost),
@@ -42,11 +45,14 @@ export function validateLocation(input) {
   }
   if (!value.address || value.address.length > 250) errors.address = "Địa chỉ phải có từ 1 đến 250 ký tự.";
   if (!isGoogleMapsUrl(value.googleMapsUrl)) errors.googleMapsUrl = "Link Google Maps không hợp lệ.";
-  if (!Number.isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90) {
+  if (value.latitude !== null && (!Number.isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90)) {
     errors.latitude = "Vĩ độ phải nằm trong khoảng -90 đến 90.";
   }
-  if (!Number.isFinite(value.longitude) || value.longitude < -180 || value.longitude > 180) {
+  if (value.longitude !== null && (!Number.isFinite(value.longitude) || value.longitude < -180 || value.longitude > 180)) {
     errors.longitude = "Kinh độ phải nằm trong khoảng -180 đến 180.";
+  }
+  if ((value.latitude === null) !== (value.longitude === null)) {
+    errors.latitude = "Hãy nhập cả vĩ độ và kinh độ, hoặc để trống cả hai để tự tìm.";
   }
   if (value.estimatedCost !== "" && (!Number.isFinite(value.estimatedCost) || value.estimatedCost < 0)) {
     errors.estimatedCost = "Chi phí phải là số không âm.";
@@ -55,6 +61,10 @@ export function validateLocation(input) {
   if (value.note.length > 1000) errors.note = "Ghi chú tối đa 1000 ký tự.";
 
   return { isValid: Object.keys(errors).length === 0, errors, value };
+}
+
+function optionalNumber(value) {
+  return value === "" || value === null || value === undefined ? null : Number(value);
 }
 
 export function validatePlanItem(input) {
@@ -126,7 +136,10 @@ function isGoogleMapsUrl(rawUrl) {
   try {
     const url = new URL(rawUrl);
     if (url.protocol !== "https:") return false;
-    return [...GOOGLE_MAPS_HOSTS].some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`));
+    if (GOOGLE_MAPS_HOSTS.has(url.hostname)) return url.pathname === "/maps" || url.pathname.startsWith("/maps/");
+    if (url.hostname === "maps.app.goo.gl") return url.pathname.length > 1;
+    if (url.hostname === "goo.gl") return url.pathname === "/maps" || url.pathname.startsWith("/maps/");
+    return false;
   } catch {
     return false;
   }

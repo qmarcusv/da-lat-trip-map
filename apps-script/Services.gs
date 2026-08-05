@@ -3,7 +3,7 @@ function listLocations_() {
 }
 
 function createLocation_(session, payload) {
-  var value = validateLocation_(payload, false);
+  var value = enrichLocationCoordinates_(validateLocation_(payload, false));
   return withScriptLock_(function () {
     var timestamp = nowIso_();
     var location = Object.assign({}, value, {
@@ -17,7 +17,7 @@ function createLocation_(session, payload) {
 }
 
 function updateLocation_(session, payload) {
-  var value = validateLocation_(payload, true);
+  var value = enrichLocationCoordinates_(validateLocation_(payload, true));
   return withScriptLock_(function () {
     var current = getRows_("Locations").filter(function (location) { return location.id === value.id && location.status === "active"; })[0];
     if (!current) throw new AppError("NOT_FOUND", "Không tìm thấy địa điểm.");

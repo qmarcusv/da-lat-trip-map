@@ -34,6 +34,38 @@ test("validateLocation accepts multiple unique categories and a matching primary
   assert.deepEqual(result.value.categories, ["food", "photo"]);
 });
 
+test("validateLocation allows both coordinates to be blank for automatic geocoding", () => {
+  const result = validateLocation({
+    name: "Quán A",
+    categories: ["food"],
+    primaryCategory: "food",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://maps.app.goo.gl/VSVaexJc3HLynKvA9",
+    latitude: "",
+    longitude: "",
+    estimatedCost: "",
+  });
+
+  assert.equal(result.isValid, true);
+  assert.equal(result.value.latitude, null);
+  assert.equal(result.value.longitude, null);
+});
+
+test("validateLocation rejects non-Maps paths on Google short-link hosts", () => {
+  const result = validateLocation({
+    name: "Quán A",
+    categories: ["food"],
+    primaryCategory: "food",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://goo.gl/not-a-maps-link",
+    latitude: "",
+    longitude: "",
+  });
+
+  assert.equal(result.isValid, false);
+  assert.match(result.errors.googleMapsUrl, /Google Maps/);
+});
+
 test("validateLocation rejects a primary category outside categories", () => {
   const result = validateLocation({
     name: "Quán A",

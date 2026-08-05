@@ -314,6 +314,7 @@ da-lat/
 │   ├── Repository.gs
 │   ├── Services.gs
 │   ├── Validation.gs
+│   ├── Geocoding.gs         # Link Google Maps / địa chỉ thành tọa độ
 │   ├── SeedData.gs          # Import 32 địa điểm và các bình chọn ban đầu
 │   └── appsscript.json
 └── docs/
@@ -336,11 +337,12 @@ Không cần tự nhập tài khoản vào Sheet. Danh sách username, role, sal
 
 1. Trong spreadsheet chọn `Extensions > Apps Script`.
 2. Đặt tên project, ví dụ `Da Lat Trip API`.
-3. Tạo các file `.gs` đúng như mục 8 và dán nội dung từ thư mục `apps-script/`, bao gồm `SeedData.gs`.
+3. Tạo các file `.gs` đúng như mục 8 và dán nội dung từ thư mục `apps-script/`, bao gồm `Geocoding.gs` và `SeedData.gs`.
 4. Trong `Project Settings > Script Properties`, tạo property tạm `INITIAL_PASSWORD` với giá trị `123`.
 5. Chạy thủ công `setupProject()`. Hàm này tự lưu Spreadsheet ID, tạo tám Sheet, tạo salt/hash cho bốn tài khoản và xóa `INITIAL_PASSWORD`.
 6. Chạy thủ công `seedExistingData()` để nhập 32 địa điểm và 62 bình chọn từ danh sách ban đầu. Hàm có chống trùng nên chạy lại không tạo bản sao.
-7. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
+7. Chạy `geocodeMissingLocations()` để tự điền tọa độ từ link Google Maps hoặc tên + địa chỉ.
+8. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
 
 Hướng dẫn thao tác chi tiết nằm tại [`docs/setup.md`](docs/setup.md).
 

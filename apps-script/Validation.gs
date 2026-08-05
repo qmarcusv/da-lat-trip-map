@@ -1,5 +1,7 @@
 function validateLocation_(input, requireId) {
   input = input || {};
+  var latitude = optionalNumber_(input.latitude);
+  var longitude = optionalNumber_(input.longitude);
   var categories = input.categories;
   if (typeof categories === "string") {
     try { categories = JSON.parse(categories); } catch (error) { categories = []; }
@@ -15,8 +17,8 @@ function validateLocation_(input, requireId) {
     primaryCategory: cleanString_(input.primaryCategory, 30),
     address: cleanString_(input.address, 250),
     googleMapsUrl: cleanString_(input.googleMapsUrl, 500),
-    latitude: Number(input.latitude),
-    longitude: Number(input.longitude),
+    latitude: latitude,
+    longitude: longitude,
     estimatedCost: input.estimatedCost === "" || input.estimatedCost === null || input.estimatedCost === undefined ? "" : Number(input.estimatedCost),
     openingHours: cleanString_(input.openingHours, 100),
     note: cleanString_(input.note, 1000),
@@ -27,10 +29,15 @@ function validateLocation_(input, requireId) {
   if (categories.indexOf(value.primaryCategory) < 0) throw new AppError("VALIDATION_ERROR", "Nhóm chính phải thuộc danh sách nhóm.");
   if (!value.address) throw new AppError("VALIDATION_ERROR", "Địa chỉ là bắt buộc.");
   if (!isGoogleMapsUrl_(value.googleMapsUrl)) throw new AppError("VALIDATION_ERROR", "Link Google Maps không hợp lệ.");
-  if (!isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90) throw new AppError("VALIDATION_ERROR", "Vĩ độ không hợp lệ.");
-  if (!isFinite(value.longitude) || value.longitude < -180 || value.longitude > 180) throw new AppError("VALIDATION_ERROR", "Kinh độ không hợp lệ.");
+  if (value.latitude !== null && (!isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90)) throw new AppError("VALIDATION_ERROR", "Vĩ độ không hợp lệ.");
+  if (value.longitude !== null && (!isFinite(value.longitude) || value.longitude < -180 || value.longitude > 180)) throw new AppError("VALIDATION_ERROR", "Kinh độ không hợp lệ.");
+  if ((value.latitude === null) !== (value.longitude === null)) throw new AppError("VALIDATION_ERROR", "Hãy nhập cả vĩ độ và kinh độ, hoặc để trống cả hai để tự tìm.");
   if (value.estimatedCost !== "" && (!isFinite(value.estimatedCost) || value.estimatedCost < 0)) throw new AppError("VALIDATION_ERROR", "Chi phí không hợp lệ.");
   return value;
+}
+
+function optionalNumber_(value) {
+  return value === "" || value === null || value === undefined ? null : Number(value);
 }
 
 function validatePlanItem_(input, shared) {
@@ -63,7 +70,9 @@ function cleanString_(value, maximumLength) {
 }
 
 function isGoogleMapsUrl_(value) {
-  return /^https:\/\/(?:www\.)?(?:google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)(?:\/|\?|$)/i.test(value);
+  return /^https:\/\/(?:(?:www|maps)\.)?google\.(?:com|com\.vn)\/maps(?:\/|\?|$)/i.test(value)
+    || /^https:\/\/maps\.app\.goo\.gl\/(?:[^/?#]+)(?:[/?#]|$)/i.test(value)
+    || /^https:\/\/goo\.gl\/maps(?:\/|\?|$)/i.test(value);
 }
 
 function requireExistingLocation_(locationId) {

@@ -27,7 +27,8 @@ Trong Apps Script editor, tạo các Script file rồi sao chép nội dung từ
 4. `Validation.gs`
 5. `Services.gs`
 6. `Code.gs`
-7. `SeedData.gs`
+7. `Geocoding.gs`
+8. `SeedData.gs`
 
 Apps Script tự quản lý manifest. Nếu muốn dùng manifest trong repository:
 
@@ -64,6 +65,16 @@ Sau khi `setupProject()` đã tạo đủ tám tab:
 4. Kiểm tra tab `Locations` có 32 dòng dữ liệu; bốn tab `Plan_*` lần lượt có số lựa chọn: `thao` 17, `trucnhi` 9, `ngocnhi` 19, `tuyen` 17.
 
 Hàm có chống trùng theo tên nên có thể chạy lại nếu lần chạy trước bị gián đoạn. Các ô FALSE không tạo dòng lịch cá nhân; tổng bình chọn được website tự tính. Địa điểm thiếu giá, giờ mở cửa hoặc tọa độ được giữ trống để cập nhật sau. Chúng vẫn hiện trong danh sách nhưng chỉ xuất hiện trên bản đồ và dùng được nút **Đo đường** sau khi có tọa độ hợp lệ.
+
+## C.2. Tự tìm tọa độ từ Google Maps và địa chỉ
+
+1. Tạo file `Geocoding.gs` trong Apps Script và dán nội dung từ `apps-script/Geocoding.gs`.
+2. Chọn hàm `geocodeMissingLocations` rồi bấm `Run`.
+3. Đồng ý cấp thêm quyền kết nối dịch vụ ngoài nếu Google yêu cầu; quyền này dùng để mở redirect của link `maps.app.goo.gl`.
+4. Mở **Execution log** và xem `checked`, `updated`, `unresolved` cùng danh sách `errors`.
+5. Mở tab `Locations` để kiểm tra hai cột `latitude` và `longitude` trước khi deploy phiên bản mới.
+
+Hàm ưu tiên tọa độ nhúng trong link Google Maps. Nếu link không có tọa độ, Apps Script tìm bằng tên + địa chỉ với khu vực Việt Nam. Khi thêm hoặc sửa địa điểm trên website, quy trình này cũng chạy tự động nếu để trống cả hai ô tọa độ. Kết quả geocode có thể không chính xác với địa chỉ mơ hồ; hãy kiểm tra các địa điểm nằm sai vị trí và sửa tay nếu cần.
 
 ## D. Deploy Apps Script thành Web app
 

@@ -24,6 +24,22 @@ test("Apps Script validation normalizes duplicate categories", () => {
   assert.deepEqual(Array.from(result.categories), ["food", "photo"]);
 });
 
+test("Apps Script validation accepts blank coordinate pairs for automatic geocoding", () => {
+  const result = context.validateLocation_({
+    name: "Quán A",
+    categories: ["food"],
+    primaryCategory: "food",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://maps.app.goo.gl/VSVaexJc3HLynKvA9",
+    latitude: "",
+    longitude: "",
+    estimatedCost: "",
+  }, false);
+
+  assert.equal(result.latitude, null);
+  assert.equal(result.longitude, null);
+});
+
 test("Apps Script keeps missing coordinates as null instead of zero", () => {
   const result = context.parseLocation_({ categories: "[\"food\"]", latitude: "", longitude: "", estimatedCost: "" });
   assert.equal(result.latitude, null);
@@ -40,6 +56,18 @@ test("Apps Script validation rejects a mismatched primary category", () => {
     latitude: 11.94,
     longitude: 108.45,
   }, false), /Nhóm chính/);
+});
+
+test("Apps Script validation rejects lookalike Google Maps hosts", () => {
+  assert.throws(() => context.validateLocation_({
+    name: "Quán A",
+    categories: ["food"],
+    primaryCategory: "food",
+    address: "Đà Lạt",
+    googleMapsUrl: "https://google.evil.com/maps/place/example",
+    latitude: "",
+    longitude: "",
+  }, false), /Link Google Maps/);
 });
 
 test("Apps Script validation rejects multiple periods in one plan item", () => {
