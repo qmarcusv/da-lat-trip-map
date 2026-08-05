@@ -117,6 +117,7 @@ function getExistingLocationSeed_() {
     ["Photobooth", "Chưa cập nhật, Đà Lạt", "photo", ["photo"], ["thao", "ngocnhi", "tuyen"]],
     ["Trạm Mèo Mướp", "Chưa cập nhật, Đà Lạt", "photo", ["photo"], ["trucnhi", "ngocnhi"]],
     ["Địa điểm chưa đặt tên (Lalalalaa)", "Lalalalaa", "sightseeing", ["sightseeing"], [], "Dữ liệu gốc thiếu tên địa điểm; cần kiểm tra và sửa lại."],
+    ["Whispering Pines", "4/1 đường Đa Minh, Phường Cam Ly, Đà Lạt", "homestay", ["homestay"], []],
   ];
 
   return rows.map(function (row) {

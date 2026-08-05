@@ -1,9 +1,11 @@
-import { ApiClient } from "./api.js";
-import { APP_CONFIG } from "./config.js";
-import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js";
-import { createDemoSession, DemoApi } from "./demo-api.js";
-import { filterLocations, formatCost, validateLocation, validatePlanItem } from "./domain.js";
-import { describeRouteSelection, MapView } from "./map.js";
+import { ApiClient } from "./api.js?v=20260805-2";
+import { APP_CONFIG } from "./config.js?v=20260805-2";
+import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js?v=20260805-2";
+import { createDemoSession, DemoApi } from "./demo-api.js?v=20260805-2";
+import { filterLocations, formatCost, validateLocation, validatePlanItem } from "./domain.js?v=20260805-2";
+import { describeRouteSelection, MapView } from "./map.js?v=20260805-2";
+
+const ASSET_VERSION = "20260805-2";
 
 const state = {
   api: new ApiClient(APP_CONFIG.apiUrl, APP_CONFIG.requestTimeoutMs),
@@ -472,7 +474,7 @@ function initials(name) {
 }
 
 function collectElements() {
-  const byId = (id) => document.getElementById(id);
+  const byId = (id) => document.getElementById(id) || recoverFromStaleMarkup(id);
   return {
     loginScreen: byId("login-screen"), appShell: byId("app-shell"), loginForm: byId("login-form"),
     loginUsername: byId("login-username"), loginPassword: byId("login-password"), loginMessage: byId("login-message"),
@@ -500,4 +502,13 @@ function collectElements() {
     sharedPlanOrder: byId("shared-plan-order"), sharedPlanNote: byId("shared-plan-note"),
     sharedPlanFormMessage: byId("shared-plan-form-message"), sharedPlanDeleteButton: byId("shared-plan-delete-button"),
   };
+}
+
+function recoverFromStaleMarkup(missingId) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("ui-version") !== ASSET_VERSION) {
+    url.searchParams.set("ui-version", ASSET_VERSION);
+    window.location.replace(url);
+  }
+  throw new Error(`Giao diện đang dùng cache cũ và thiếu #${missingId}. Trang đang được tải lại.`);
 }

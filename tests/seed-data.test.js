@@ -9,9 +9,21 @@ vm.runInContext(source, context);
 
 const locations = context.getExistingLocationSeed_();
 
-test("initial import contains all 32 supplied locations with unique names", () => {
-  assert.equal(locations.length, 32);
-  assert.equal(new Set(locations.map((item) => item.name.trim().toLocaleLowerCase("vi"))).size, 32);
+test("initial import contains all supplied locations with unique names", () => {
+  assert.equal(locations.length, 33);
+  assert.equal(new Set(locations.map((item) => item.name.trim().toLocaleLowerCase("vi"))).size, 33);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(locations.find((item) => item.name === "Whispering Pines"))),
+    {
+      name: "Whispering Pines",
+      address: "4/1 đường Đa Minh, Phường Cam Ly, Đà Lạt",
+      primaryCategory: "homestay",
+      categories: ["homestay"],
+      votes: [],
+      note: "",
+      googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Whispering%20Pines%204%2F1%20%C4%91%C6%B0%E1%BB%9Dng%20%C4%90a%20Minh%2C%20Ph%C6%B0%E1%BB%9Dng%20Cam%20Ly%2C%20%C4%90%C3%A0%20L%E1%BA%A1t",
+    },
+  );
 });
 
 test("initial votes are assigned to the four application usernames", () => {
@@ -69,8 +81,8 @@ test("seedExistingData is idempotent for locations and votes", () => {
   const first = context.seedExistingData();
   const second = context.seedExistingData();
 
-  assert.deepEqual({ ...first }, { locationsCreated: 32, locationsReused: 0, votesCreated: 62, votesUpdated: 0 });
-  assert.deepEqual({ ...second }, { locationsCreated: 0, locationsReused: 32, votesCreated: 0, votesUpdated: 0 });
-  assert.equal(sheets.Locations.length, 32);
+  assert.deepEqual({ ...first }, { locationsCreated: 33, locationsReused: 0, votesCreated: 62, votesUpdated: 0 });
+  assert.deepEqual({ ...second }, { locationsCreated: 0, locationsReused: 33, votesCreated: 0, votesUpdated: 0 });
+  assert.equal(sheets.Locations.length, 33);
   assert.equal(Object.values(sheetNames).reduce((sum, sheetName) => sum + sheets[sheetName].length, 0), 62);
 });
