@@ -26,7 +26,7 @@ var APP = Object.freeze({
   }),
 });
 
-var CATEGORY_VALUES = Object.freeze(["food", "photo", "sightseeing", "homestay"]);
+var CATEGORY_VALUES = Object.freeze(["food", "cafe", "photo", "sightseeing", "homestay"]);
 var DAY_VALUES = Object.freeze(["unassigned", "1", "2", "3"]);
 var PERIOD_VALUES = Object.freeze(["unassigned", "morning", "afternoon", "evening"]);
 

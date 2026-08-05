@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const context = vm.createContext({ console, isFinite });
-for (const filename of ["Config.gs", "Validation.gs"]) {
+for (const filename of ["Config.gs", "Validation.gs", "Services.gs"]) {
   const source = readFileSync(new URL(`../apps-script/${filename}`, import.meta.url), "utf8");
   vm.runInContext(source, context, { filename });
 }
@@ -22,6 +22,12 @@ test("Apps Script validation normalizes duplicate categories", () => {
   }, false);
 
   assert.deepEqual(Array.from(result.categories), ["food", "photo"]);
+});
+
+test("Apps Script keeps missing coordinates as null instead of zero", () => {
+  const result = context.parseLocation_({ categories: "[\"food\"]", latitude: "", longitude: "", estimatedCost: "" });
+  assert.equal(result.latitude, null);
+  assert.equal(result.longitude, null);
 });
 
 test("Apps Script validation rejects a mismatched primary category", () => {

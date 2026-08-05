@@ -158,10 +158,17 @@ function createLocationCard(location) {
     if (categoryMeta) tags.append(createElement("span", "tag", `${categoryMeta.icon} ${categoryMeta.label}`));
   }
   if (location.openingHours) tags.append(createElement("span", "tag", `◷ ${location.openingHours}`));
+  const hasCoordinates = location.latitude !== null && location.latitude !== "" && location.latitude !== undefined
+    && location.longitude !== null && location.longitude !== "" && location.longitude !== undefined
+    && Number.isFinite(Number(location.latitude)) && Number.isFinite(Number(location.longitude));
+  if (!hasCoordinates) tags.append(createElement("span", "tag", "⌖ Chưa có tọa độ"));
 
   const footer = createElement("div", "location-card__footer");
   footer.append(makeButton("Lịch của tôi", "button button--primary", () => openPlanDialog(location)));
-  footer.append(makeButton("Đo đường", "button button--secondary", () => state.map.selectForRoute(location)));
+  const routeButton = makeButton("Đo đường", "button button--secondary", () => state.map.selectForRoute(location));
+  routeButton.disabled = !hasCoordinates;
+  routeButton.title = hasCoordinates ? "Chọn địa điểm để đo đường" : "Cần bổ sung tọa độ trước khi đo đường";
+  footer.append(routeButton);
   footer.append(makeButton("Sửa", "button button--ghost", () => openLocationDialog(location)));
   if (state.user.role === "admin") {
     footer.append(makeButton("Chốt chung", "button button--secondary", () => openSharedPlanDialog(location)));

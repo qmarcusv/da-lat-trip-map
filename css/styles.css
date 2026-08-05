@@ -13,6 +13,7 @@
   --amber: #e89a3d;
   --danger: #b93830;
   --food: #f97316;
+  --cafe: #a16207;
   --photo: #9333ea;
   --sightseeing: #16a34a;
   --homestay: #2563eb;
@@ -113,7 +114,7 @@ button { cursor: pointer; }
 .legend { display: flex; flex-wrap: wrap; gap: 0.55rem 0.8rem; margin: 0.85rem 0; color: var(--ink-500); font-size: 0.68rem; }
 .legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
 .legend__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; }
-.legend__dot--food { background: var(--food); } .legend__dot--photo { background: var(--photo); }
+.legend__dot--food { background: var(--food); } .legend__dot--cafe { background: var(--cafe); } .legend__dot--photo { background: var(--photo); }
 .legend__dot--sightseeing { background: var(--sightseeing); } .legend__dot--homestay { background: var(--homestay); }
 .result-summary { padding: 0.75rem 0; border-top: 1px solid var(--mist-100); color: var(--ink-500); font-size: 0.75rem; }
 .location-list { min-height: 0; display: grid; align-content: start; gap: 0.65rem; overflow-y: auto; padding: 0.1rem 0.25rem 1rem 0; }

@@ -27,6 +27,7 @@ Trong Apps Script editor, tạo các Script file rồi sao chép nội dung từ
 4. `Validation.gs`
 5. `Services.gs`
 6. `Code.gs`
+7. `SeedData.gs`
 
 Apps Script tự quản lý manifest. Nếu muốn dùng manifest trong repository:
 
@@ -52,6 +53,17 @@ Không chụp màn hình hoặc chia sẻ giá trị `USERS_JSON`. Dù chỉ ch�
 Để đổi mật khẩu chung sau khi thử nghiệm: tạo lại Script Property `INITIAL_PASSWORD` với giá trị mới, chạy thủ công hàm `resetAllPasswords()`, rồi kiểm tra property tạm đã tự xóa. Hàm này cũng đăng xuất toàn bộ phiên cũ.
 
 Nếu `setupProject()` báo `SCHEMA_MISMATCH`, không sửa code để bỏ qua. Hãy kiểm tra dòng tiêu đề của tab được báo lỗi hoặc dùng spreadsheet mới chưa có dữ liệu.
+
+## C.1. Nhập danh sách địa điểm và bình chọn ban đầu
+
+Sau khi `setupProject()` đã tạo đủ tám tab:
+
+1. Tạo file `SeedData.gs` trong Apps Script và dán nội dung từ `apps-script/SeedData.gs`.
+2. Chọn hàm `seedExistingData` trên thanh công cụ rồi bấm `Run` đúng một lần.
+3. Kết quả lần đầu phải báo `locationsCreated: 32` và `votesCreated: 62` nếu database đang trống.
+4. Kiểm tra tab `Locations` có 32 dòng dữ liệu; bốn tab `Plan_*` lần lượt có số lựa chọn: `thao` 17, `trucnhi` 9, `ngocnhi` 19, `tuyen` 17.
+
+Hàm có chống trùng theo tên nên có thể chạy lại nếu lần chạy trước bị gián đoạn. Các ô FALSE không tạo dòng lịch cá nhân; tổng bình chọn được website tự tính. Địa điểm thiếu giá, giờ mở cửa hoặc tọa độ được giữ trống để cập nhật sau. Chúng vẫn hiện trong danh sách nhưng chỉ xuất hiện trên bản đồ và dùng được nút **Đo đường** sau khi có tọa độ hợp lệ.
 
 ## D. Deploy Apps Script thành Web app
 

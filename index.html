@@ -82,6 +82,7 @@
               <select id="category-filter">
                 <option value="all">Tất cả nhóm</option>
                 <option value="food">Ăn uống</option>
+                <option value="cafe">Cafe</option>
                 <option value="photo">Chụp ảnh</option>
                 <option value="sightseeing">Danh lam thắng cảnh</option>
                 <option value="homestay">Homestay</option>
@@ -91,6 +92,7 @@
 
           <div class="legend" aria-label="Chú giải màu địa điểm">
             <span><i class="legend__dot legend__dot--food"></i>Ăn uống</span>
+            <span><i class="legend__dot legend__dot--cafe"></i>Cafe</span>
             <span><i class="legend__dot legend__dot--photo"></i>Chụp ảnh</span>
             <span><i class="legend__dot legend__dot--sightseeing"></i>Thắng cảnh</span>
             <span><i class="legend__dot legend__dot--homestay"></i>Homestay</span>
@@ -152,11 +154,12 @@
           <fieldset class="field field--wide category-fieldset">
             <legend>Nhóm *</legend>
             <label><input type="checkbox" name="categories" value="food"> <span>🍜 Ăn uống</span></label>
+            <label><input type="checkbox" name="categories" value="cafe"> <span>☕ Cafe</span></label>
             <label><input type="checkbox" name="categories" value="photo"> <span>📷 Chụp ảnh</span></label>
             <label><input type="checkbox" name="categories" value="sightseeing"> <span>🌲 Thắng cảnh</span></label>
             <label><input type="checkbox" name="categories" value="homestay"> <span>🏠 Homestay</span></label>
           </fieldset>
-          <label class="field"><span>Nhóm chính *</span><select id="location-primary-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
+          <label class="field"><span>Nhóm chính *</span><select id="location-primary-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="cafe">Cafe</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
           <label class="field"><span>Chi phí dự kiến (VND)</span><input id="location-cost" type="number" min="0" step="1000" placeholder="70000"></label>
           <label class="field field--wide"><span>Địa chỉ *</span><input id="location-address" required maxlength="250"></label>
           <label class="field field--wide"><span>Link Google Maps *</span><input id="location-maps-url" type="url" required placeholder="https://maps.app.goo.gl/..."></label>

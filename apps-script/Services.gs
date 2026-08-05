@@ -157,8 +157,8 @@ function parseLocation_(location) {
   if (typeof result.categories === "string") {
     try { result.categories = JSON.parse(result.categories); } catch (error) { result.categories = []; }
   }
-  result.latitude = Number(result.latitude);
-  result.longitude = Number(result.longitude);
+  result.latitude = result.latitude === "" || result.latitude === null || result.latitude === undefined ? null : Number(result.latitude);
+  result.longitude = result.longitude === "" || result.longitude === null || result.longitude === undefined ? null : Number(result.longitude);
   result.estimatedCost = result.estimatedCost === "" ? "" : Number(result.estimatedCost);
   return result;
 }

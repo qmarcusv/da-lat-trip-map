@@ -1,5 +1,6 @@
 export const CATEGORY_META = Object.freeze({
   food: { label: "Ăn uống", color: "#f97316", icon: "🍜" },
+  cafe: { label: "Cafe", color: "#a16207", icon: "☕" },
   photo: { label: "Chụp ảnh", color: "#9333ea", icon: "📷" },
   sightseeing: { label: "Danh lam thắng cảnh", color: "#16a34a", icon: "🌲" },
   homestay: { label: "Homestay", color: "#2563eb", icon: "🏠" },

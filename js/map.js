@@ -27,6 +27,8 @@ export class MapView {
     this.#markers.clearLayers();
     const bounds = [];
     for (const location of locations) {
+      if (location.latitude === null || location.latitude === "" || location.latitude === undefined
+        || location.longitude === null || location.longitude === "" || location.longitude === undefined) continue;
       const latitude = Number(location.latitude);
       const longitude = Number(location.longitude);
       if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;

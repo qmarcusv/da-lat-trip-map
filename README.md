@@ -61,6 +61,7 @@ Mật khẩu mặc định `123` đã được ghi trong tài liệu công khai 
 Một địa điểm có thể thuộc nhiều loại khác nhau:
 
 - `food`: Ăn uống
+- `cafe`: Cafe
 - `photo`: Chụp ảnh
 - `sightseeing`: Danh lam thắng cảnh
 - `homestay`: Homestay
@@ -313,6 +314,7 @@ da-lat/
 │   ├── Repository.gs
 │   ├── Services.gs
 │   ├── Validation.gs
+│   ├── SeedData.gs          # Import 32 địa điểm và các bình chọn ban đầu
 │   └── appsscript.json
 └── docs/
     └── setup.md
@@ -334,10 +336,11 @@ Không cần tự nhập tài khoản vào Sheet. Danh sách username, role, sal
 
 1. Trong spreadsheet chọn `Extensions > Apps Script`.
 2. Đặt tên project, ví dụ `Da Lat Trip API`.
-3. Tạo các file `.gs` đúng như mục 8 và dán nội dung từ thư mục `apps-script/`.
+3. Tạo các file `.gs` đúng như mục 8 và dán nội dung từ thư mục `apps-script/`, bao gồm `SeedData.gs`.
 4. Trong `Project Settings > Script Properties`, tạo property tạm `INITIAL_PASSWORD` với giá trị `123`.
 5. Chạy thủ công `setupProject()`. Hàm này tự lưu Spreadsheet ID, tạo tám Sheet, tạo salt/hash cho bốn tài khoản và xóa `INITIAL_PASSWORD`.
-6. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
+6. Chạy thủ công `seedExistingData()` để nhập 32 địa điểm và 62 bình chọn từ danh sách ban đầu. Hàm có chống trùng nên chạy lại không tạo bản sao.
+7. Không đặt password hoặc token vào `Code.gs`, `config.js` hay repository GitHub.
 
 Hướng dẫn thao tác chi tiết nằm tại [`docs/setup.md`](docs/setup.md).
 
