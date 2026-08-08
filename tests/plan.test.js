@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { validatePlanItem } from "../js/domain.js";
+import { formatPlannedTime, validatePlanItem } from "../js/domain.js";
 
 test("validatePlanItem accepts one day, one period and a valid time", () => {
   const result = validatePlanItem({
@@ -54,4 +54,11 @@ test("validatePlanItem rejects invalid time", () => {
 
   assert.equal(result.isValid, false);
   assert.match(result.errors.plannedTime, /giờ/i);
+});
+
+test("formatPlannedTime displays legacy Sheet dates in Vietnam GMT+7", () => {
+  assert.equal(formatPlannedTime("1899-12-30T13:45:30.000Z"), "20:45");
+  assert.equal(formatPlannedTime("1899-12-29T23:53:30.000Z"), "06:53");
+  assert.equal(formatPlannedTime("13:45"), "13:45");
+  assert.equal(formatPlannedTime(""), "");
 });

@@ -2,6 +2,7 @@ function setupProject() {
   return withScriptLock_(function () {
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     if (!spreadsheet) throw new AppError("NO_SPREADSHEET", "Hãy mở Apps Script từ Google Sheet bằng Extensions > Apps Script.");
+    spreadsheet.setSpreadsheetTimeZone(APP.timeZone);
     PropertiesService.getScriptProperties().setProperty(APP.spreadsheetIdProperty, spreadsheet.getId());
 
     ensureSheet_(spreadsheet, "Locations", APP.headers.Locations);
@@ -63,7 +64,7 @@ function getRows_(sheetName) {
 }
 
 function appendObject_(sheetName, headers, object) {
-  getSheet_(sheetName).appendRow(headers.map(function (header) { return toCellValue_(object[header]); }));
+  getSheet_(sheetName).appendRow(headers.map(function (header) { return toCellValue_(object[header], header); }));
 }
 
 function updateObjectById_(sheetName, idField, id, patch) {
@@ -78,7 +79,7 @@ function updateObjectById_(sheetName, idField, id, patch) {
     var current = {};
     headers.forEach(function (header, index) { current[header] = serializeCell_(values[rowIndex][index]); });
     var next = Object.assign({}, current, patch);
-    sheet.getRange(rowIndex + 1, 1, 1, headers.length).setValues([headers.map(function (header) { return toCellValue_(next[header]); })]);
+    sheet.getRange(rowIndex + 1, 1, 1, headers.length).setValues([headers.map(function (header) { return toCellValue_(next[header], header); })]);
     return next;
   }
   throw new AppError("NOT_FOUND", "Không tìm thấy dữ liệu cần sửa.");
@@ -104,9 +105,10 @@ function serializeCell_(value) {
   return value;
 }
 
-function toCellValue_(value) {
+function toCellValue_(value, header) {
   if (Array.isArray(value) || (value && typeof value === "object")) return JSON.stringify(value);
   if (value === undefined || value === null) return "";
+  if (header === "plannedTime" && value !== "") return "'" + String(value);
   return value;
 }
 

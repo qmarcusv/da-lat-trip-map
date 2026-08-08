@@ -97,3 +97,23 @@ test("Apps Script accepts noon on dates 27 to 29 and maps legacy day numbers", (
   assert.equal(noon.period, "noon");
   assert.equal(legacy.day, "27");
 });
+
+test("Apps Script converts legacy Sheet time dates to Vietnam GMT+7", () => {
+  const shared = context.parseSharedPlanItem_({
+    day: "27",
+    plannedTime: "1899-12-30T13:45:30.000Z",
+    order: 0,
+  });
+  const personal = context.parsePlanItem_({
+    day: "27",
+    plannedTime: "1899-12-29T23:53:30.000Z",
+    vote: true,
+  });
+
+  assert.equal(shared.plannedTime, "20:45");
+  assert.equal(personal.plannedTime, "06:53");
+});
+
+test("Apps Script keeps HH:mm plan values unchanged", () => {
+  assert.equal(context.parsePlanItem_({ plannedTime: "08:30" }).plannedTime, "08:30");
+});

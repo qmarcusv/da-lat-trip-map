@@ -171,6 +171,7 @@ function parseLocation_(location) {
 function parsePlanItem_(item) {
   var result = Object.assign({}, item);
   result.day = normalizeTripDay_(result.day);
+  result.plannedTime = normalizePlannedTime_(result.plannedTime);
   result.vote = result.vote === true || String(result.vote).toLowerCase() === "true";
   return result;
 }
@@ -178,6 +179,23 @@ function parsePlanItem_(item) {
 function parseSharedPlanItem_(item) {
   var result = Object.assign({}, item);
   result.day = normalizeTripDay_(result.day);
+  result.plannedTime = normalizePlannedTime_(result.plannedTime);
   result.order = Number(result.order || 0);
   return result;
+}
+
+function normalizePlannedTime_(value) {
+  if (value === undefined || value === null || value === "") return "";
+  var text = String(value).trim().replace(/^'/, "");
+  var direct = text.match(/^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/);
+  if (direct) return direct[1] + ":" + direct[2];
+
+  var parsed = value instanceof Date ? value : new Date(text);
+  if (isNaN(parsed.getTime())) return "";
+  var vietnamTime = new Date(parsed.getTime() + APP.utcOffsetMinutes * 60 * 1000);
+  return padTimePart_(vietnamTime.getUTCHours()) + ":" + padTimePart_(vietnamTime.getUTCMinutes());
+}
+
+function padTimePart_(value) {
+  return String(value).padStart(2, "0");
 }

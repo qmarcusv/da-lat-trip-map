@@ -5,6 +5,8 @@ var APP = Object.freeze({
   sessionHours: 6,
   maxLoginAttempts: 8,
   loginWindowSeconds: 900,
+  timeZone: "Asia/Ho_Chi_Minh",
+  utcOffsetMinutes: 420,
   users: Object.freeze([
     { username: "trucnhi", displayName: "Trúc Nhi", role: "admin" },
     { username: "thao", displayName: "Thảo", role: "admin" },

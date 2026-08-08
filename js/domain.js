@@ -92,6 +92,18 @@ export function validatePlanItem(input) {
   return { isValid: Object.keys(errors).length === 0, errors, value };
 }
 
+export function formatPlannedTime(value) {
+  if (value === undefined || value === null || value === "") return "";
+  const text = String(value).trim().replace(/^'/, "");
+  const direct = text.match(/^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/);
+  if (direct) return `${direct[1]}:${direct[2]}`;
+
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.getTime())) return "";
+  const vietnamTime = new Date(parsed.getTime() + 7 * 60 * 60 * 1000);
+  return `${String(vietnamTime.getUTCHours()).padStart(2, "0")}:${String(vietnamTime.getUTCMinutes()).padStart(2, "0")}`;
+}
+
 function normalizeTripDay(value) {
   return ({ 1: "27", 2: "28", 3: "29" })[String(value)] || String(value);
 }

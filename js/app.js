@@ -2,7 +2,7 @@ import { ApiClient } from "./api.js?v=20260805-2";
 import { APP_CONFIG } from "./config.js?v=20260805-2";
 import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js?v=20260805-2";
 import { createDemoSession, DemoApi } from "./demo-api.js?v=20260805-2";
-import { filterLocations, formatCost, validateLocation, validatePlanItem } from "./domain.js?v=20260805-2";
+import { filterLocations, formatCost, formatPlannedTime, validateLocation, validatePlanItem } from "./domain.js?v=20260805-2";
 import { describeRouteSelection, MapView } from "./map.js?v=20260805-2";
 
 const ASSET_VERSION = "20260805-2";
@@ -274,7 +274,7 @@ function openPlanDialog(location) {
   elements.planSelectionId.value = item?.selectionId || "";
   elements.planDay.value = item?.day || "unassigned";
   elements.planPeriod.value = item?.period || "unassigned";
-  elements.planTime.value = item?.plannedTime || "";
+  elements.planTime.value = formatPlannedTime(item?.plannedTime);
   elements.planVote.checked = Boolean(item?.vote);
   elements.planNote.value = item?.note || "";
   elements.planDeleteButton.hidden = !item;
@@ -328,7 +328,7 @@ function openSharedPlanDialog(location, item = null) {
   elements.sharedPlanItemId.value = item?.planItemId || "";
   elements.sharedPlanDay.value = item?.day || "27";
   elements.sharedPlanPeriod.value = item?.period || "morning";
-  elements.sharedPlanTime.value = item?.plannedTime || "";
+  elements.sharedPlanTime.value = formatPlannedTime(item?.plannedTime);
   elements.sharedPlanOrder.value = item?.order ?? 0;
   elements.sharedPlanNote.value = item?.note || "";
   elements.sharedPlanDeleteButton.hidden = !item;
@@ -393,12 +393,12 @@ function renderPlanList(container, items, isPersonal) {
   const periodOrder = { unassigned: 0, morning: 1, noon: 2, afternoon: 3, evening: 4 };
   const sorted = [...items].sort((a, b) => (dayOrder[a.day] || 0) - (dayOrder[b.day] || 0)
     || (periodOrder[a.period] || 0) - (periodOrder[b.period] || 0)
-    || String(a.plannedTime || "").localeCompare(String(b.plannedTime || "")));
+    || formatPlannedTime(a.plannedTime).localeCompare(formatPlannedTime(b.plannedTime)));
   for (const item of sorted) {
     const location = state.locations.find((entry) => entry.id === item.locationId);
     if (!location) continue;
     const row = createElement("article", "plan-item");
-    row.append(createElement("span", "plan-item__time", item.plannedTime || PERIOD_LABELS[item.period]?.replace("Buổi ", "") || "—"));
+    row.append(createElement("span", "plan-item__time", formatPlannedTime(item.plannedTime) || PERIOD_LABELS[item.period]?.replace("Buổi ", "") || "—"));
     const copy = createElement("div");
     copy.append(createElement("strong", "", location.name), createElement("small", "", `${DAY_LABELS[item.day] || item.day} · ${PERIOD_LABELS[item.period] || item.period}${item.vote ? " · ♥ Đã bình chọn" : ""}`));
     row.append(copy);
