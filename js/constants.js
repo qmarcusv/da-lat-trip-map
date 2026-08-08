@@ -13,14 +13,6 @@ export const DAY_LABELS = Object.freeze({
   29: "Ngày 29",
 });
 
-export const PERIOD_LABELS = Object.freeze({
-  unassigned: "Chưa xếp buổi",
-  morning: "Buổi sáng",
-  noon: "Buổi trưa",
-  afternoon: "Buổi chiều",
-  evening: "Buổi tối",
-});
-
 export const USER_LABELS = Object.freeze({
   trucnhi: "Trúc Nhi",
   thao: "Thảo",
@@ -30,4 +22,3 @@ export const USER_LABELS = Object.freeze({
 
 export const ALLOWED_CATEGORIES = Object.freeze(Object.keys(CATEGORY_META));
 export const ALLOWED_DAYS = Object.freeze(Object.keys(DAY_LABELS));
-export const ALLOWED_PERIODS = Object.freeze(Object.keys(PERIOD_LABELS));

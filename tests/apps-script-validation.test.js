@@ -82,20 +82,17 @@ test("Apps Script validation rejects lookalike Google Maps hosts", () => {
   }, false), /Link Google Maps/);
 });
 
-test("Apps Script validation rejects multiple periods in one plan item", () => {
-  assert.throws(() => context.validatePlanItem_({
-    locationId: "loc-1",
-    day: "27",
-    period: ["morning", "afternoon"],
-  }, false), /Buổi/);
+test("Apps Script accepts date and time without a period and maps legacy day numbers", () => {
+  const planned = context.validatePlanItem_({ locationId: "loc-1", day: "28", plannedTime: "12:00" }, false);
+  const legacy = context.validatePlanItem_({ locationId: "loc-1", day: "1", plannedTime: "08:30" }, false);
+  assert.equal(planned.day, "28");
+  assert.equal(planned.period, "unassigned");
+  assert.equal(legacy.day, "27");
 });
 
-test("Apps Script accepts noon on dates 27 to 29 and maps legacy day numbers", () => {
-  const noon = context.validatePlanItem_({ locationId: "loc-1", day: "28", period: "noon" }, false);
-  const legacy = context.validatePlanItem_({ locationId: "loc-1", day: "1", period: "morning" }, false);
-  assert.equal(noon.day, "28");
-  assert.equal(noon.period, "noon");
-  assert.equal(legacy.day, "27");
+test("Apps Script requires both date and time for schedule choices", () => {
+  assert.throws(() => context.validatePlanItem_({ locationId: "loc-1", day: "unassigned", plannedTime: "" }, false), /Ngày/);
+  assert.throws(() => context.validatePlanItem_({ locationId: "loc-1", day: "27", plannedTime: "" }, true), /Giờ/);
 });
 
 test("Apps Script converts legacy Sheet time dates to Vietnam GMT+7", () => {

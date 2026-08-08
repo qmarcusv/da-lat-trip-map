@@ -1,8 +1,7 @@
 import {
   ALLOWED_CATEGORIES,
   ALLOWED_DAYS,
-  ALLOWED_PERIODS,
-} from "./constants.js?v=20260808-1";
+} from "./constants.js?v=20260808-2";
 
 const GOOGLE_MAPS_HOSTS = new Set([
   "google.com",
@@ -28,7 +27,8 @@ export function validateLocation(input) {
     categories: normalizeCategories([category]),
     primaryCategory: category,
     day: normalizeTripDay(input.day || "27"),
-    period: String(input.period || "morning"),
+    period: "unassigned",
+    plannedTime: String(input.plannedTime || "").trim(),
     address: String(input.address || "").trim(),
     googleMapsUrl: String(input.googleMapsUrl || "").trim(),
     latitude,
@@ -44,7 +44,7 @@ export function validateLocation(input) {
   if (!value.name || value.name.length > 120) errors.name = "Tên phải có từ 1 đến 120 ký tự.";
   if (value.categories.length !== 1) errors.category = "Chọn một nhóm hợp lệ.";
   if (!ALLOWED_DAYS.includes(value.day) || value.day === "unassigned") errors.day = "Ngày phải là 27, 28 hoặc 29.";
-  if (!ALLOWED_PERIODS.includes(value.period) || value.period === "unassigned") errors.period = "Chọn một buổi hợp lệ.";
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value.plannedTime)) errors.plannedTime = "Giờ dự kiến phải theo định dạng HH:mm.";
   if (!value.address || value.address.length > 250) errors.address = "Địa chỉ phải có từ 1 đến 250 ký tự.";
   if (!isGoogleMapsUrl(value.googleMapsUrl)) errors.googleMapsUrl = "Link Google Maps không hợp lệ.";
   if (value.latitude !== null && (!Number.isFinite(value.latitude) || value.latitude < -90 || value.latitude > 90)) {
@@ -74,7 +74,7 @@ export function validatePlanItem(input) {
     selectionId: String(input.selectionId || "").trim(),
     locationId: String(input.locationId || "").trim(),
     day: normalizeTripDay(input.day || "unassigned"),
-    period: String(input.period || "unassigned"),
+    period: "unassigned",
     plannedTime: String(input.plannedTime || "").trim(),
     vote: Boolean(input.vote),
     note: String(input.note || "").trim(),
@@ -82,9 +82,8 @@ export function validatePlanItem(input) {
   const errors = {};
 
   if (!value.locationId) errors.locationId = "Thiếu địa điểm.";
-  if (!ALLOWED_DAYS.includes(value.day)) errors.day = "Ngày không hợp lệ.";
-  if (!ALLOWED_PERIODS.includes(value.period)) errors.period = "Buổi không hợp lệ.";
-  if (value.plannedTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.plannedTime)) {
+  if (!ALLOWED_DAYS.includes(value.day) || value.day === "unassigned") errors.day = "Ngày phải là 27, 28 hoặc 29.";
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value.plannedTime)) {
     errors.plannedTime = "Giờ dự kiến phải theo định dạng HH:mm.";
   }
   if (value.note.length > 500) errors.note = "Ghi chú cá nhân tối đa 500 ký tự.";
@@ -117,6 +116,15 @@ export function filterLocations(locations, filters = {}) {
     if (!search) return true;
     return normalizeText(`${location.name || ""} ${location.address || ""}`).includes(search);
   });
+}
+
+export function partitionLocationsByPlan(locations, planItems) {
+  const selectedIds = new Set(planItems.map((item) => item.locationId));
+  const activeLocations = locations.filter((location) => location.status !== "deleted");
+  return {
+    selected: activeLocations.filter((location) => selectedIds.has(location.id)),
+    unselected: activeLocations.filter((location) => !selectedIds.has(location.id)),
+  };
 }
 
 export function calculateDistanceKm(pointA, pointB) {

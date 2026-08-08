@@ -32,7 +32,6 @@ test("shared plan upsert reuses an existing item for the same location", () => {
   const result = context.upsertSharedPlanItem_({ username: "thao", role: "admin" }, {
     locationId: "loc-1",
     day: "28",
-    period: "noon",
     plannedTime: "12:00",
     order: 0,
     note: "Ăn trưa",
@@ -40,5 +39,5 @@ test("shared plan upsert reuses an existing item for the same location", () => {
 
   assert.equal(saved.planItemId, "plan-1");
   assert.equal(result.day, "28");
-  assert.equal(result.period, "noon");
+  assert.equal(result.period, "unassigned");
 });

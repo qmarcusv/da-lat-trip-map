@@ -1,5 +1,5 @@
-import { CATEGORY_META } from "./constants.js?v=20260808-1";
-import { calculateDistanceKm, formatCost, formatDistance } from "./domain.js?v=20260808-1";
+import { CATEGORY_META } from "./constants.js?v=20260808-2";
+import { calculateDistanceKm, formatCost, formatDistance } from "./domain.js?v=20260808-2";
 
 export class MapView {
   #map;

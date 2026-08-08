@@ -12,7 +12,17 @@ test("schedule navigation exposes separate shared and personal pages", () => {
 });
 
 test("shared and personal schedules use the same page card design", () => {
-  assert.equal((html.match(/class="schedule-card"/g) || []).length, 2);
+  assert.equal((html.match(/class="schedule-card"/g) || []).length, 4);
   assert.match(html, /id="shared-plan-list"/);
+  assert.match(html, /id="shared-unselected-list"/);
   assert.match(html, /id="my-plan-list"/);
+  assert.match(html, /id="personal-unselected-list"/);
+  assert.equal((html.match(/class="schedule-columns"/g) || []).length, 2);
+});
+
+test("schedule forms use only date and required time", () => {
+  assert.doesNotMatch(html, /id="plan-period"/);
+  assert.doesNotMatch(html, /id="shared-plan-period"/);
+  assert.match(html, /id="plan-time"[^>]*type="time"[^>]*required/);
+  assert.match(html, /id="shared-plan-time"[^>]*type="time"[^>]*required/);
 });

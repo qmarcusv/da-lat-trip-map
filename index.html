@@ -9,7 +9,7 @@
     <title>Đà Lạt đi đâu?</title>
     <link rel="preconnect" href="https://tile.openstreetmap.org">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/styles.css?v=20260808-1">
+    <link rel="stylesheet" href="css/styles.css?v=20260808-2">
   </head>
   <body>
     <div class="login-screen" id="login-screen">
@@ -129,10 +129,16 @@
             </div>
             <button class="button button--secondary back-to-map-button" type="button">← Bản đồ</button>
           </div>
-          <section class="schedule-card" aria-labelledby="shared-schedule-title">
-            <div class="section-heading"><h3 id="shared-schedule-title">Lịch chung</h3><span>Admin chốt</span></div>
-            <div id="shared-plan-list" class="plan-list"></div>
-          </section>
+          <div class="schedule-columns">
+            <section class="schedule-card" aria-labelledby="shared-schedule-title">
+              <div class="section-heading"><h3 id="shared-schedule-title">Đã chọn</h3><span id="shared-plan-count">0 điểm</span></div>
+              <div id="shared-plan-list" class="plan-list"></div>
+            </section>
+            <section class="schedule-card" aria-labelledby="shared-unselected-title">
+              <div class="section-heading"><h3 id="shared-unselected-title">Chưa chọn</h3><span id="shared-unselected-count">0 điểm</span></div>
+              <div id="shared-unselected-list" class="plan-list"></div>
+            </section>
+          </div>
         </aside>
 
         <aside class="schedule-panel" id="personal-schedule-panel" hidden>
@@ -143,10 +149,16 @@
             </div>
             <button class="button button--secondary back-to-map-button" type="button">← Bản đồ</button>
           </div>
-          <section class="schedule-card" aria-labelledby="personal-schedule-title">
-            <div class="section-heading"><h3 id="personal-schedule-title">Lựa chọn của tôi</h3><span id="my-plan-count">0 điểm</span></div>
-            <div id="my-plan-list" class="plan-list"></div>
-          </section>
+          <div class="schedule-columns">
+            <section class="schedule-card" aria-labelledby="personal-schedule-title">
+              <div class="section-heading"><h3 id="personal-schedule-title">Đã chọn</h3><span id="my-plan-count">0 điểm</span></div>
+              <div id="my-plan-list" class="plan-list"></div>
+            </section>
+            <section class="schedule-card" aria-labelledby="personal-unselected-title">
+              <div class="section-heading"><h3 id="personal-unselected-title">Chưa chọn</h3><span id="personal-unselected-count">0 điểm</span></div>
+              <div id="personal-unselected-list" class="plan-list"></div>
+            </section>
+          </div>
         </aside>
       </main>
     </div>
@@ -162,7 +174,7 @@
           <label class="field field--wide"><span>Tên địa điểm *</span><input id="location-name" required maxlength="120"></label>
           <label class="field"><span>Nhóm *</span><select id="location-category" required><option value="">Chọn nhóm</option><option value="food">Ăn uống</option><option value="cafe">Cafe</option><option value="photo">Chụp ảnh</option><option value="sightseeing">Thắng cảnh</option><option value="homestay">Homestay</option></select></label>
           <label class="field"><span>Ngày *</span><select id="location-day" required><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
-          <label class="field"><span>Buổi *</span><select id="location-period" required><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
+          <label class="field"><span>Giờ dự kiến *</span><input id="location-time" type="time" required></label>
           <label class="field"><span>Chi phí dự kiến (VND)</span><input id="location-cost" type="number" min="0" step="1000" placeholder="70000"></label>
           <label class="field field--wide"><span>Địa chỉ *</span><input id="location-address" required maxlength="250"></label>
           <label class="field field--wide"><span>Link Google Maps *</span><input id="location-maps-url" type="url" required placeholder="https://maps.app.goo.gl/..."></label>
@@ -185,9 +197,8 @@
         <input id="plan-location-id" type="hidden">
         <input id="plan-selection-id" type="hidden">
         <div class="form-grid">
-          <label class="field"><span>Ngày</span><select id="plan-day"><option value="unassigned">Chưa xếp ngày</option><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
-          <label class="field"><span>Buổi</span><select id="plan-period"><option value="unassigned">Chưa xếp buổi</option><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
-          <label class="field"><span>Giờ dự kiến</span><input id="plan-time" type="time"></label>
+          <label class="field"><span>Ngày *</span><select id="plan-day" required><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
+          <label class="field"><span>Giờ dự kiến *</span><input id="plan-time" type="time" required></label>
           <label class="switch-field"><input id="plan-vote" type="checkbox"><span>Bình chọn địa điểm này</span></label>
           <label class="field field--wide"><span>Ghi chú cá nhân</span><textarea id="plan-note" rows="3" maxlength="500"></textarea></label>
         </div>
@@ -206,9 +217,8 @@
         <input id="shared-plan-item-id" type="hidden">
         <div class="form-grid">
           <label class="field"><span>Ngày *</span><select id="shared-plan-day" required><option value="27">Ngày 27</option><option value="28">Ngày 28</option><option value="29">Ngày 29</option></select></label>
-          <label class="field"><span>Buổi *</span><select id="shared-plan-period" required><option value="morning">Buổi sáng</option><option value="noon">Buổi trưa</option><option value="afternoon">Buổi chiều</option><option value="evening">Buổi tối</option></select></label>
-          <label class="field"><span>Giờ dự kiến</span><input id="shared-plan-time" type="time"></label>
-          <label class="field"><span>Thứ tự trong buổi</span><input id="shared-plan-order" type="number" min="0" step="1" value="0"></label>
+          <label class="field"><span>Giờ dự kiến *</span><input id="shared-plan-time" type="time" required></label>
+          <label class="field"><span>Thứ tự trong ngày</span><input id="shared-plan-order" type="number" min="0" step="1" value="0"></label>
           <label class="field field--wide"><span>Ghi chú chung</span><textarea id="shared-plan-note" rows="3" maxlength="500"></textarea></label>
         </div>
         <p class="form-message" id="shared-plan-form-message" role="alert"></p>
@@ -219,6 +229,6 @@
     <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script type="module" src="js/app.js?v=20260808-1"></script>
+    <script type="module" src="js/app.js?v=20260808-2"></script>
   </body>
 </html>

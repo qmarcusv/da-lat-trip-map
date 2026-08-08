@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-const ASSET_VERSION = "20260808-1";
+const ASSET_VERSION = "20260808-2";
 const root = new URL("../", import.meta.url);
 
 test("HTML loads local CSS and the entry module with the same deployment version", () => {

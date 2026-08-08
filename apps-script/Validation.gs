@@ -45,14 +45,13 @@ function validatePlanItem_(input, shared) {
   var value = {
     locationId: cleanString_(input.locationId, 80),
     day: normalizeTripDay_(cleanString_(input.day || "unassigned", 12)),
-    period: cleanString_(input.period || "unassigned", 20),
+    period: "unassigned",
     plannedTime: cleanString_(input.plannedTime, 5),
     note: cleanString_(input.note, 500),
   };
   if (!value.locationId) throw new AppError("VALIDATION_ERROR", "Thiếu địa điểm.");
-  if (DAY_VALUES.indexOf(value.day) < 0 || (shared && value.day === "unassigned")) throw new AppError("VALIDATION_ERROR", "Ngày không hợp lệ.");
-  if (PERIOD_VALUES.indexOf(value.period) < 0 || (shared && value.period === "unassigned")) throw new AppError("VALIDATION_ERROR", "Buổi không hợp lệ.");
-  if (value.plannedTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.plannedTime)) throw new AppError("VALIDATION_ERROR", "Giờ dự kiến phải theo HH:mm.");
+  if (DAY_VALUES.indexOf(value.day) < 0 || value.day === "unassigned") throw new AppError("VALIDATION_ERROR", "Ngày là bắt buộc và phải là 27, 28 hoặc 29.");
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value.plannedTime)) throw new AppError("VALIDATION_ERROR", "Giờ dự kiến phải theo HH:mm.");
   if (shared) {
     value.planItemId = cleanString_(input.planItemId, 80);
     value.order = Math.max(0, Number(input.order) || 0);

@@ -1,11 +1,11 @@
-import { ApiClient } from "./api.js?v=20260808-1";
-import { APP_CONFIG } from "./config.js?v=20260808-1";
-import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js?v=20260808-1";
-import { createDemoSession, DemoApi } from "./demo-api.js?v=20260808-1";
-import { filterLocations, formatCost, formatPlannedTime, validateLocation, validatePlanItem } from "./domain.js?v=20260808-1";
-import { describeRouteSelection, MapView } from "./map.js?v=20260808-1";
+import { ApiClient } from "./api.js?v=20260808-2";
+import { APP_CONFIG } from "./config.js?v=20260808-2";
+import { CATEGORY_META, DAY_LABELS, USER_LABELS } from "./constants.js?v=20260808-2";
+import { createDemoSession, DemoApi } from "./demo-api.js?v=20260808-2";
+import { filterLocations, formatCost, formatPlannedTime, partitionLocationsByPlan, validateLocation, validatePlanItem } from "./domain.js?v=20260808-2";
+import { describeRouteSelection, MapView } from "./map.js?v=20260808-2";
 
-const ASSET_VERSION = "20260808-1";
+const ASSET_VERSION = "20260808-2";
 
 const state = {
   api: new ApiClient(APP_CONFIG.apiUrl, APP_CONFIG.requestTimeoutMs),
@@ -189,8 +189,8 @@ function openLocationDialog(location = null) {
   elements.locationId.value = location?.id || "";
   elements.locationName.value = location?.name || "";
   elements.locationCategory.value = location?.primaryCategory || location?.categories?.[0] || "";
-  elements.locationDay.value = scheduledItem?.day || "27";
-  elements.locationPeriod.value = scheduledItem?.period || "morning";
+  elements.locationDay.value = scheduledItem?.day && scheduledItem.day !== "unassigned" ? scheduledItem.day : "27";
+  elements.locationTime.value = formatPlannedTime(scheduledItem?.plannedTime);
   elements.locationAddress.value = location?.address || "";
   elements.locationMapsUrl.value = location?.googleMapsUrl || "";
   elements.locationLatitude.value = location?.latitude ?? "";
@@ -210,7 +210,7 @@ async function saveLocation(event) {
     name: elements.locationName.value,
     category: elements.locationCategory.value,
     day: elements.locationDay.value,
-    period: elements.locationPeriod.value,
+    plannedTime: elements.locationTime.value,
     address: elements.locationAddress.value,
     googleMapsUrl: elements.locationMapsUrl.value,
     latitude: elements.locationLatitude.value,
@@ -234,8 +234,8 @@ async function saveLocation(event) {
       locationId: savedLocation.id,
       planItemId: existingSchedule?.planItemId || "",
       day: result.value.day,
-      period: result.value.period,
-      plannedTime: existingSchedule?.plannedTime || "",
+      period: "unassigned",
+      plannedTime: result.value.plannedTime,
       order: existingSchedule?.order || 0,
       note: existingSchedule?.note || "",
     });
@@ -272,8 +272,7 @@ function openPlanDialog(location) {
   elements.planLocationName.textContent = location.name;
   elements.planLocationId.value = location.id;
   elements.planSelectionId.value = item?.selectionId || "";
-  elements.planDay.value = item?.day || "unassigned";
-  elements.planPeriod.value = item?.period || "unassigned";
+  elements.planDay.value = item?.day && item.day !== "unassigned" ? item.day : "27";
   elements.planTime.value = formatPlannedTime(item?.plannedTime);
   elements.planVote.checked = Boolean(item?.vote);
   elements.planNote.value = item?.note || "";
@@ -287,7 +286,6 @@ async function savePlanItem(event) {
     selectionId: elements.planSelectionId.value,
     locationId: elements.planLocationId.value,
     day: elements.planDay.value,
-    period: elements.planPeriod.value,
     plannedTime: elements.planTime.value,
     vote: elements.planVote.checked,
     note: elements.planNote.value,
@@ -326,8 +324,7 @@ function openSharedPlanDialog(location, item = null) {
   elements.sharedPlanLocationName.textContent = location.name;
   elements.sharedPlanLocationId.value = location.id;
   elements.sharedPlanItemId.value = item?.planItemId || "";
-  elements.sharedPlanDay.value = item?.day || "27";
-  elements.sharedPlanPeriod.value = item?.period || "morning";
+  elements.sharedPlanDay.value = item?.day && item.day !== "unassigned" ? item.day : "27";
   elements.sharedPlanTime.value = formatPlannedTime(item?.plannedTime);
   elements.sharedPlanOrder.value = item?.order ?? 0;
   elements.sharedPlanNote.value = item?.note || "";
@@ -340,13 +337,12 @@ async function saveSharedPlanItem(event) {
   const result = validatePlanItem({
     locationId: elements.sharedPlanLocationId.value,
     day: elements.sharedPlanDay.value,
-    period: elements.sharedPlanPeriod.value,
     plannedTime: elements.sharedPlanTime.value,
     vote: false,
     note: elements.sharedPlanNote.value,
   });
-  if (!result.isValid || result.value.day === "unassigned" || result.value.period === "unassigned") {
-    elements.sharedPlanFormMessage.textContent = Object.values(result.errors)[0] || "Lịch chung phải có ngày và buổi.";
+  if (!result.isValid) {
+    elements.sharedPlanFormMessage.textContent = Object.values(result.errors)[0];
     return;
   }
   setBusy(elements.sharedPlanForm, true);
@@ -378,9 +374,16 @@ async function deleteSharedPlanItem() {
 }
 
 function renderPlans() {
-  elements.myPlanCount.textContent = `${state.myPlan.length} điểm`;
+  const personal = partitionLocationsByPlan(state.locations, state.myPlan);
+  const shared = partitionLocationsByPlan(state.locations, state.sharedPlan);
+  elements.myPlanCount.textContent = `${personal.selected.length} điểm`;
+  elements.personalUnselectedCount.textContent = `${personal.unselected.length} điểm`;
+  elements.sharedPlanCount.textContent = `${shared.selected.length} điểm`;
+  elements.sharedUnselectedCount.textContent = `${shared.unselected.length} điểm`;
   renderPlanList(elements.myPlanList, state.myPlan, true);
   renderPlanList(elements.sharedPlanList, state.sharedPlan, false);
+  renderUnselectedList(elements.personalUnselectedList, personal.unselected, true);
+  renderUnselectedList(elements.sharedUnselectedList, shared.unselected, false);
 }
 
 function renderPlanList(container, items, isPersonal) {
@@ -390,20 +393,43 @@ function renderPlanList(container, items, isPersonal) {
     return;
   }
   const dayOrder = { unassigned: 0, 27: 1, 28: 2, 29: 3 };
-  const periodOrder = { unassigned: 0, morning: 1, noon: 2, afternoon: 3, evening: 4 };
   const sorted = [...items].sort((a, b) => (dayOrder[a.day] || 0) - (dayOrder[b.day] || 0)
-    || (periodOrder[a.period] || 0) - (periodOrder[b.period] || 0)
     || formatPlannedTime(a.plannedTime).localeCompare(formatPlannedTime(b.plannedTime)));
   for (const item of sorted) {
     const location = state.locations.find((entry) => entry.id === item.locationId);
     if (!location) continue;
     const row = createElement("article", "plan-item");
-    row.append(createElement("span", "plan-item__time", formatPlannedTime(item.plannedTime) || PERIOD_LABELS[item.period]?.replace("Buổi ", "") || "—"));
+    const plannedTime = formatPlannedTime(item.plannedTime);
+    row.append(createElement("span", "plan-item__time", plannedTime || "Chưa có giờ"));
     const copy = createElement("div");
-    copy.append(createElement("strong", "", location.name), createElement("small", "", `${DAY_LABELS[item.day] || item.day} · ${PERIOD_LABELS[item.period] || item.period}${item.vote ? " · ♥ Đã bình chọn" : ""}`));
+    copy.append(createElement("strong", "", location.name), createElement("small", "", `${DAY_LABELS[item.day] || "Chưa xếp ngày"}${item.vote ? " · ♥ Đã bình chọn" : ""}`));
     row.append(copy);
     if (isPersonal) row.append(makeButton("Sửa", "button button--ghost", () => openPlanDialog(location)));
     else if (state.user.role === "admin") row.append(makeButton("Sửa", "button button--ghost", () => openSharedPlanDialog(location, item)));
+    container.append(row);
+  }
+}
+
+function renderUnselectedList(container, locations, isPersonal) {
+  container.replaceChildren();
+  if (locations.length === 0) {
+    container.append(createElement("div", "empty-state", "Tất cả địa điểm đã được chọn."));
+    return;
+  }
+  const sorted = [...locations].sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  for (const location of sorted) {
+    const row = createElement("article", "plan-item plan-item--available");
+    const meta = CATEGORY_META[location.primaryCategory] || CATEGORY_META.sightseeing;
+    const symbol = createElement("span", "location-card__symbol", meta.icon);
+    symbol.style.setProperty("--marker-color", meta.color);
+    const copy = createElement("div");
+    copy.append(createElement("strong", "", location.name), createElement("small", "", `${meta.label} · ${location.address}`));
+    row.append(symbol, copy);
+    if (isPersonal) {
+      row.append(makeButton("Chọn", "button button--primary", () => openPlanDialog(location)));
+    } else if (state.user.role === "admin") {
+      row.append(makeButton("Chọn", "button button--primary", () => openSharedPlanDialog(location)));
+    }
     container.append(row);
   }
 }
@@ -488,19 +514,21 @@ function collectElements() {
     resultCount: byId("result-count"), locationList: byId("location-list"), mapStatus: byId("map-status"),
     routeDescription: byId("route-description"), routeRoadButton: byId("route-road-button"), routeClearButton: byId("route-clear-button"),
     myPlanList: byId("my-plan-list"), sharedPlanList: byId("shared-plan-list"), myPlanCount: byId("my-plan-count"),
+    personalUnselectedList: byId("personal-unselected-list"), personalUnselectedCount: byId("personal-unselected-count"),
+    sharedUnselectedList: byId("shared-unselected-list"), sharedPlanCount: byId("shared-plan-count"), sharedUnselectedCount: byId("shared-unselected-count"),
     locationDialog: byId("location-dialog"), locationForm: byId("location-form"), locationDialogTitle: byId("location-dialog-title"),
     locationId: byId("location-id"), locationName: byId("location-name"), locationCategory: byId("location-category"),
-    locationDay: byId("location-day"), locationPeriod: byId("location-period"), locationAddress: byId("location-address"), locationMapsUrl: byId("location-maps-url"),
+    locationDay: byId("location-day"), locationTime: byId("location-time"), locationAddress: byId("location-address"), locationMapsUrl: byId("location-maps-url"),
     locationLatitude: byId("location-latitude"), locationLongitude: byId("location-longitude"), locationCost: byId("location-cost"),
     locationOpeningHours: byId("location-opening-hours"), locationNote: byId("location-note"), locationFormMessage: byId("location-form-message"),
     planDialog: byId("plan-dialog"), planForm: byId("plan-form"), planLocationName: byId("plan-location-name"),
     planLocationId: byId("plan-location-id"), planSelectionId: byId("plan-selection-id"), planDay: byId("plan-day"),
-    planPeriod: byId("plan-period"), planTime: byId("plan-time"), planVote: byId("plan-vote"), planNote: byId("plan-note"),
+    planTime: byId("plan-time"), planVote: byId("plan-vote"), planNote: byId("plan-note"),
     planFormMessage: byId("plan-form-message"), planDeleteButton: byId("plan-delete-button"), toastRegion: byId("toast-region"),
     sharedPlanDialog: byId("shared-plan-dialog"), sharedPlanForm: byId("shared-plan-form"),
     sharedPlanLocationName: byId("shared-plan-location-name"), sharedPlanLocationId: byId("shared-plan-location-id"),
     sharedPlanItemId: byId("shared-plan-item-id"), sharedPlanDay: byId("shared-plan-day"),
-    sharedPlanPeriod: byId("shared-plan-period"), sharedPlanTime: byId("shared-plan-time"),
+    sharedPlanTime: byId("shared-plan-time"),
     sharedPlanOrder: byId("shared-plan-order"), sharedPlanNote: byId("shared-plan-note"),
     sharedPlanFormMessage: byId("shared-plan-form-message"), sharedPlanDeleteButton: byId("shared-plan-delete-button"),
   };

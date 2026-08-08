@@ -16,12 +16,12 @@ test("normalizeCategories removes duplicates and unsupported values", () => {
   );
 });
 
-test("validateLocation maps one group into the legacy location fields and keeps its schedule", () => {
+test("validateLocation maps one group and its date-time selection into legacy fields", () => {
   const result = validateLocation({
     name: "Quán A",
     category: "food",
     day: "27",
-    period: "noon",
+    plannedTime: "12:00",
     address: "Đà Lạt",
     googleMapsUrl: "https://www.google.com/maps/place/test",
     latitude: 11.9404,
@@ -35,7 +35,8 @@ test("validateLocation maps one group into the legacy location fields and keeps 
   assert.deepEqual(result.value.categories, ["food"]);
   assert.equal(result.value.primaryCategory, "food");
   assert.equal(result.value.day, "27");
-  assert.equal(result.value.period, "noon");
+  assert.equal(result.value.period, "unassigned");
+  assert.equal(result.value.plannedTime, "12:00");
 });
 
 test("validateLocation allows both coordinates to be blank for automatic geocoding", () => {
@@ -43,7 +44,7 @@ test("validateLocation allows both coordinates to be blank for automatic geocodi
     name: "Quán A",
     category: "food",
     day: "28",
-    period: "morning",
+    plannedTime: "08:30",
     address: "Đà Lạt",
     googleMapsUrl: "https://maps.app.goo.gl/VSVaexJc3HLynKvA9",
     latitude: "",
@@ -61,7 +62,7 @@ test("validateLocation rejects non-Maps paths on Google short-link hosts", () =>
     name: "Quán A",
     category: "food",
     day: "29",
-    period: "evening",
+    plannedTime: "19:00",
     address: "Đà Lạt",
     googleMapsUrl: "https://goo.gl/not-a-maps-link",
     latitude: "",
@@ -77,7 +78,7 @@ test("validateLocation rejects an unsupported group", () => {
     name: "Quán A",
     category: "unknown",
     day: "27",
-    period: "morning",
+    plannedTime: "07:00",
     address: "Đà Lạt",
     googleMapsUrl: "https://maps.app.goo.gl/example",
     latitude: 11.94,
