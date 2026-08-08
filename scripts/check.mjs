@@ -34,7 +34,8 @@ for (const file of javaScriptFiles) {
 
 const html = readFileSync(new URL("index.html", root), "utf8");
 const requiredIds = [
-  "login-screen", "app-shell", "map", "location-list", "location-dialog", "plan-dialog", "shared-plan-dialog", "toast-region",
+  "login-screen", "app-shell", "map", "location-list", "shared-schedule-panel", "personal-schedule-panel",
+  "location-dialog", "plan-dialog", "shared-plan-dialog", "toast-region",
 ];
 for (const id of requiredIds) {
   if (!html.includes(`id="${id}"`)) throw new Error(`index.html thiếu #${id}`);

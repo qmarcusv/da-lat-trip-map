@@ -1,11 +1,11 @@
-import { ApiClient } from "./api.js?v=20260805-2";
-import { APP_CONFIG } from "./config.js?v=20260805-2";
-import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js?v=20260805-2";
-import { createDemoSession, DemoApi } from "./demo-api.js?v=20260805-2";
-import { filterLocations, formatCost, formatPlannedTime, validateLocation, validatePlanItem } from "./domain.js?v=20260805-2";
-import { describeRouteSelection, MapView } from "./map.js?v=20260805-2";
+import { ApiClient } from "./api.js?v=20260808-1";
+import { APP_CONFIG } from "./config.js?v=20260808-1";
+import { CATEGORY_META, DAY_LABELS, PERIOD_LABELS, USER_LABELS } from "./constants.js?v=20260808-1";
+import { createDemoSession, DemoApi } from "./demo-api.js?v=20260808-1";
+import { filterLocations, formatCost, formatPlannedTime, validateLocation, validatePlanItem } from "./domain.js?v=20260808-1";
+import { describeRouteSelection, MapView } from "./map.js?v=20260808-1";
 
-const ASSET_VERSION = "20260805-2";
+const ASSET_VERSION = "20260808-1";
 
 const state = {
   api: new ApiClient(APP_CONFIG.apiUrl, APP_CONFIG.requestTimeoutMs),
@@ -47,7 +47,7 @@ function bindEvents() {
   elements.refreshButton.addEventListener("click", loadData);
   elements.routeRoadButton.addEventListener("click", calculateRoadRoute);
   elements.routeClearButton.addEventListener("click", () => state.map?.clearRoute());
-  elements.backToMapButton.addEventListener("click", () => switchView("places"));
+  for (const button of elements.backToMapButtons) button.addEventListener("click", () => switchView("places"));
   for (const tab of elements.viewTabs) tab.addEventListener("click", () => switchView(tab.dataset.view));
   for (const button of document.querySelectorAll('dialog [value="cancel"]')) {
     button.addEventListener("click", (event) => {
@@ -409,12 +409,13 @@ function renderPlanList(container, items, isPersonal) {
 }
 
 function switchView(view) {
-  const isSchedule = view === "schedule";
-  elements.placesPanel.hidden = isSchedule;
-  elements.mapStage.hidden = isSchedule;
-  elements.schedulePanel.hidden = !isSchedule;
+  const isPlaces = view === "places";
+  elements.placesPanel.hidden = !isPlaces;
+  elements.mapStage.hidden = !isPlaces;
+  elements.sharedSchedulePanel.hidden = view !== "shared-schedule";
+  elements.personalSchedulePanel.hidden = view !== "personal-schedule";
   for (const tab of elements.viewTabs) tab.classList.toggle("is-active", tab.dataset.view === view);
-  if (!isSchedule) setTimeout(() => state.map.invalidateSize(), 0);
+  if (isPlaces) setTimeout(() => state.map.invalidateSize(), 0);
 }
 
 function updateRouteSelection(selection) {
@@ -481,7 +482,8 @@ function collectElements() {
     demoEntry: byId("demo-entry"), demoButton: byId("demo-button"), logoutButton: byId("logout-button"),
     userName: byId("user-name"), userRole: byId("user-role"), userAvatar: byId("user-avatar"), connectionPill: byId("connection-pill"),
     viewTabs: document.querySelectorAll(".view-tab"), placesPanel: byId("places-panel"), mapStage: document.querySelector(".map-stage"),
-    schedulePanel: byId("schedule-panel"), backToMapButton: byId("back-to-map-button"), addLocationButton: byId("add-location-button"),
+    sharedSchedulePanel: byId("shared-schedule-panel"), personalSchedulePanel: byId("personal-schedule-panel"),
+    backToMapButtons: document.querySelectorAll(".back-to-map-button"), addLocationButton: byId("add-location-button"),
     searchInput: byId("search-input"), categoryFilter: byId("category-filter"), refreshButton: byId("refresh-button"),
     resultCount: byId("result-count"), locationList: byId("location-list"), mapStatus: byId("map-status"),
     routeDescription: byId("route-description"), routeRoadButton: byId("route-road-button"), routeClearButton: byId("route-clear-button"),

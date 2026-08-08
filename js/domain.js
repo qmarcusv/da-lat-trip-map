@@ -2,7 +2,7 @@ import {
   ALLOWED_CATEGORIES,
   ALLOWED_DAYS,
   ALLOWED_PERIODS,
-} from "./constants.js?v=20260805-2";
+} from "./constants.js?v=20260808-1";
 
 const GOOGLE_MAPS_HOSTS = new Set([
   "google.com",
